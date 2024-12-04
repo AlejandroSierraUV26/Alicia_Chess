@@ -21,15 +21,23 @@ class Peon(Pieza):
         movimientos = []
         fila, columna = self.posicion
         if self.color == "Blanco":
-            if tablero_actual[fila + 1][columna] is None:
+            if fila + 1 < 8 and tablero_actual[fila + 1][columna] is None and tablero_opuesto[fila + 1][columna] is None:
                 movimientos.append((fila + 1, columna))
-            if fila == 1 and tablero_actual[fila + 2][columna] is None:
-                movimientos.append((fila + 2, columna))
+                if fila == 1 and tablero_actual[fila + 2][columna] is None and tablero_opuesto[fila + 2][columna] is None and tablero_actual[fila + 1][columna] is None and tablero_opuesto[fila + 1][columna] is None:
+                    movimientos.append((fila + 2, columna))
+            if fila + 1 < 8 and columna + 1 < 8 and tablero_actual[fila + 1][columna + 1] is not None and tablero_actual[fila + 1][columna + 1].color != self.color:
+                movimientos.append((fila + 1, columna + 1))
+            if fila + 1 < 8 and columna - 1 >= 0 and tablero_actual[fila + 1][columna - 1] is not None and tablero_actual[fila + 1][columna - 1].color != self.color:
+                movimientos.append((fila + 1, columna - 1))
         else:
-            if tablero_actual[fila - 1][columna] is None:
+            if fila - 1 >= 0 and tablero_actual[fila - 1][columna] is None and tablero_opuesto[fila - 1][columna] is None:
                 movimientos.append((fila - 1, columna))
-            if fila == 6 and tablero_actual[fila - 2][columna] is None:
-                movimientos.append((fila - 2, columna))
+                if fila == 6 and tablero_actual[fila - 2][columna] is None and tablero_opuesto[fila - 2][columna] is None and tablero_actual[fila - 1][columna] is None and tablero_opuesto[fila - 1][columna] is None:
+                    movimientos.append((fila - 2, columna))
+            if fila - 1 >= 0 and columna + 1 < 8 and tablero_actual[fila - 1][columna + 1] is not None and tablero_actual[fila - 1][columna + 1].color != self.color:
+                movimientos.append((fila - 1, columna + 1))
+            if fila - 1 >= 0 and columna - 1 >= 0 and tablero_actual[fila - 1][columna - 1] is not None and tablero_actual[fila - 1][columna - 1].color != self.color:
+                movimientos.append((fila - 1, columna - 1))
         return movimientos
 
 class Torre(Pieza):

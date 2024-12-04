@@ -15,11 +15,17 @@ class Tablero:
     def mover_ficha(self, ficha, posicion):
         fila, columna = posicion
         if ficha in [item for sublist in self.tablero for item in sublist]:
-            self.tablero[ficha.posicion[0]][ficha.posicion[1]] = None
-            self.tablero2[fila][columna] = ficha
+            if self.tablero2[fila][columna] is None or self.tablero2[fila][columna].color != ficha.color:
+                self.tablero[ficha.posicion[0]][ficha.posicion[1]] = None
+                self.tablero2[fila][columna] = ficha
+            else:
+                print("Movimiento inválido: posición ocupada por un aliado")
         else:
-            self.tablero2[ficha.posicion[0]][ficha.posicion[1]] = None
-            self.tablero[fila][columna] = ficha
+            if self.tablero[fila][columna] is None or self.tablero[fila][columna].color != ficha.color:
+                self.tablero2[ficha.posicion[0]][ficha.posicion[1]] = None
+                self.tablero[fila][columna] = ficha
+            else:
+                print("Movimiento inválido: posición ocupada por un aliado")
         ficha.posicion = posicion
         print("Movimiento")
     
