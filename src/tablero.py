@@ -12,4 +12,16 @@ class Tablero:
         fila, columna = posicion
         self.tablero[fila][columna] = ficha
         
+    def mover_ficha(self, ficha, posicion):
+        fila, columna = posicion
+        if ficha in [item for sublist in self.tablero for item in sublist]:
+            self.tablero[ficha.posicion[0]][ficha.posicion[1]] = None
+            self.tablero2[fila][columna] = ficha
+        else:
+            self.tablero2[ficha.posicion[0]][ficha.posicion[1]] = None
+            self.tablero[fila][columna] = ficha
+        ficha.posicion = posicion
+        print("Movimiento")
+    
+    
                 
