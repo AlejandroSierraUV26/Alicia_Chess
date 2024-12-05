@@ -12,7 +12,6 @@ class Pieza:
         Define los movimientos válidos según el tipo de pieza.
         """
         raise NotImplementedError
-
 class Peon(Pieza):
     def __init__(self, color, posicion):
         super().__init__("Peón", color, posicion)
@@ -29,6 +28,8 @@ class Peon(Pieza):
                 movimientos.append((fila + 1, columna + 1))
             if fila + 1 < 8 and columna - 1 >= 0 and tablero_actual[fila + 1][columna - 1] is not None and tablero_actual[fila + 1][columna - 1].color != self.color:
                 movimientos.append((fila + 1, columna - 1))
+            if fila + 1 < 8 and columna - 1 >= 0 and tablero_opuesto[fila + 1][columna - 1] is not None and tablero_opuesto[fila + 1][columna - 1].color != self.color:
+                movimientos.append((fila + 1, columna - 1))
         else:
             if fila - 1 >= 0 and tablero_actual[fila - 1][columna] is None and tablero_opuesto[fila - 1][columna] is None:
                 movimientos.append((fila - 1, columna))
@@ -38,6 +39,8 @@ class Peon(Pieza):
                 movimientos.append((fila - 1, columna + 1))
             if fila - 1 >= 0 and columna - 1 >= 0 and tablero_actual[fila - 1][columna - 1] is not None and tablero_actual[fila - 1][columna - 1].color != self.color:
                 movimientos.append((fila - 1, columna - 1))
+            if fila - 1 >= 0 and columna + 1 < 8 and tablero_opuesto[fila - 1][columna + 1] is not None and tablero_opuesto[fila - 1][columna + 1].color != self.color:
+                movimientos.append((fila - 1, columna + 1))
         return movimientos
 
 class Torre(Pieza):
@@ -331,7 +334,13 @@ def buscar_ficha(posicion, fichas):
 
 def mover(ficha, posicion):
     if posicion in ficha.movimientos_legales(board.tablero, board.tablero2):
-        board.mover_ficha(ficha, posicion)
+        ficha_enemiga = buscar_ficha(posicion, board.fichas_oponentes(ficha.color))
+        if ficha_enemiga:
+            board.eliminar_ficha(ficha_enemiga, posicion)
+            print("Eliminado")
+        board.mover_ficha(ficha, posicion)       
+        return ficha_enemiga
+        
     else:
         print("Movimiento no válido para la ficha seleccionada.")
 def movimientos_posibles(ficha):
