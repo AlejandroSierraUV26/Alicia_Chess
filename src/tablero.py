@@ -51,6 +51,10 @@ class Tablero:
         fila, columna = posicion
         if ficha in [item for sublist in self.tablero for item in sublist]:
             if self.tablero2[fila][columna] is None or self.tablero2[fila][columna].color != ficha.color:
+                if ficha.dimension == 1:
+                    ficha.dimension = 2
+                else:
+                    ficha.dimension = 2
                 self.tablero[ficha.posicion[0]][ficha.posicion[1]] = None
                 self.tablero2[fila][columna] = ficha
             else:
@@ -63,13 +67,17 @@ class Tablero:
             else:
                 print("Movimiento inválido: posición ocupada por un aliado")
         ficha.posicion = posicion
-        print("Movimiento")
+
     def eliminar_ficha(self, ficha, posicion):
         fila, columna = posicion
         if ficha in [item for sublist in self.tablero for item in sublist]:
             self.tablero[fila][columna] = None
+            
         else:
             self.tablero2[fila][columna] = None
-    def fichas_oponentes(self, color):
-        return [item for sublist in self.tablero for item in sublist if item and item.color != color]
+    def fichas_oponentes(self, color, dimension):
+        if dimension == 1:
+            return [item for sublist in self.tablero for item in sublist if item and item.color != color]
+        else:
+            return [item for sublist in self.tablero2 for item in sublist if item and item.color != color]
                 
