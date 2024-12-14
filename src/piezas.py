@@ -60,7 +60,13 @@ class Peon(Pieza):
                 if fila - 1 >= 0 and columna - 1 >= 0 and tablero_opuesto[fila - 1][columna - 1] is not None and tablero_opuesto[fila - 1][columna - 1].color != self.color:
                     movimientos.append((fila - 1, columna - 1))
         return movimientos
-
+    def coronar(self):
+        # Verificar si el peón se encuentra en la fila 0 o 7
+        pass
+    def en_passant(self):
+        # Verificar si el peón puede realizar el movimiento en passant
+        pass    
+    
 class Torre(Pieza):
     def __init__(self, color, posicion, dimension):
         super().__init__("Torre", color, posicion, dimension)
@@ -220,17 +226,82 @@ class Rey(Pieza):
             tablero = tablero_opuesto
             
         posibles_movimientos = [
-            (fila + 1, columna), (fila - 1, columna),
-            (fila, columna + 1), (fila, columna - 1),
-            (fila + 1, columna + 1), (fila + 1, columna - 1),
-            (fila - 1, columna + 1), (fila - 1, columna - 1)
-        ]
+                (fila + 1, columna), (fila - 1, columna),
+                (fila, columna + 1), (fila, columna - 1),
+                (fila + 1, columna + 1), (fila + 1, columna - 1),
+                (fila - 1, columna + 1), (fila - 1, columna - 1)
+            ]
         for mov in posibles_movimientos:
             if 0 <= mov[0] < 8 and 0 <= mov[1] < 8:
                 pieza = tablero[mov[0]][mov[1]]
                 if pieza is None or pieza.color != self.color:
                     movimientos.append(mov)
         return movimientos
+    def enroque(self, tablero_actual, tablero_opuesto):
+        # Determinar si el rey ha movido
+        # Determinar si la torre ha movido
+        # Determinar si hay piezas entre el rey y la torre
+        
+        movimientos = []
+        fila, columna = self.posicion
+
+        if self.color == "Blanco":
+            if self.dimension == 1:
+                if self.posicion == (0, 4):
+                    # Enroque corto
+                    if isinstance(tablero_actual[0][7], Torre) and tablero_actual[0][7].dimension == 1:
+                        if tablero_actual[0][5] is None and tablero_actual[0][6] is None:
+                            movimientos.append((0, 6))
+                    # Enroque largo
+                    if isinstance(tablero_actual[0][0], Torre) and tablero_actual[0][0].dimension == 1:
+                        if tablero_actual[0][1] is None and tablero_actual[0][2] is None and tablero_actual[0][3] is None:
+                            movimientos.append((0, 2))
+                else:
+                    if self.posicion == (0, 4):
+                        # Enroque corto
+                        if isinstance(tablero_opuesto[0][7], Torre) and tablero_opuesto[0][7].dimension == 2:
+                            if tablero_opuesto[0][5] is None and tablero_opuesto[0][6] is None:
+                                movimientos.append((0, 6))
+                    # Enroque largo
+                    if isinstance(tablero_opuesto[0][0], Torre) and tablero_opuesto[0][0].dimension == 2:
+                        if tablero_opuesto[0][1] is None and tablero_opuesto[0][2] is None and tablero_opuesto[0][3] is None:
+                            movimientos.append((0, 2))
+        else:
+            if self.dimension == 1:
+                if self.posicion == (7, 4):
+                    # Enroque corto
+                    if isinstance(tablero_actual[7][7], Torre) and tablero_actual[7][7].dimension == 1:
+                        if tablero_actual[7][5] is None and tablero_actual[7][6] is None:
+                            movimientos.append((7, 6))
+                    # Enroque largo
+                    if isinstance(tablero_actual[7][0], Torre) and tablero_actual[7][0].dimension == 1:
+                        if tablero_actual[7][1] is None and tablero_actual[7][2] is None and tablero_actual[7][3] is None:
+                            movimientos.append((7, 2))
+                else:
+                    if self.posicion == (7, 4):
+                    # Enroque corto
+                        if isinstance(tablero_opuesto[7][7], Torre) and tablero_opuesto[7][7].dimension == 2:
+                            if tablero_opuesto[7][5] is None and tablero_opuesto[7][6] is None:
+                                movimientos.append((7, 6))
+                        # Enroque largo
+                        if isinstance(tablero_opuesto[7][0], Torre) and tablero_opuesto[7][0].dimension == 2:
+                            if tablero_opuesto[7][1] is None and tablero_opuesto[7][2] is None and tablero_opuesto[7][3] is None:
+                                movimientos.append((7, 2))
+        return movimientos
+    
+    def jaque(self):
+        # Verificar si el rey está en jaque
+        pass
+    
+    def jaque_mate(self):
+        # Verificar si el rey está en jaque mate
+        pass
+    
+    def ahogado(self):
+        # Verificar si el rey está ahogado
+        pass
+    
+    
 class Reina(Pieza):
     def __init__(self, color, posicion, dimension):
         super().__init__("Dama", color, posicion, dimension)
@@ -342,28 +413,28 @@ def inicializar_piezas():
     fichas = []
     # Crear piezas blancas
     fichas.append(Torre("Blanco", (0, 0), 1))
-    fichas.append(Caballo("Blanco", (0, 1), 1))
-    fichas.append(Alfil("Blanco", (0, 2), 1))
-    fichas.append(Reina("Blanco", (0, 3), 1))
+    # fichas.append(Caballo("Blanco", (0, 1), 1))
+    # fichas.append(Alfil("Blanco", (0, 2), 1))
+    # fichas.append(Reina("Blanco", (0, 3), 1))
     fichas.append(Rey("Blanco", (0, 4), 1))
-    fichas.append(Alfil("Blanco", (0, 5), 1))
-    fichas.append(Caballo("Blanco", (0, 6), 1))
+    # fichas.append(Alfil("Blanco", (0, 5), 1))
+    # fichas.append(Caballo("Blanco", (0, 6), 1))
     fichas.append(Torre("Blanco", (0, 7), 1))
-    for _ in range(8):
-        fichas.append(Peon("Blanco", (1, _), 1))
+    # for _ in range(8):
+    #     fichas.append(Peon("Blanco", (1, _), 1))
     
         
     # Crear piezas negras
     fichas.append(Torre("Negro", (7,0), 1))   
-    fichas.append(Caballo("Negro", (7,1), 1))
-    fichas.append(Alfil("Negro", (7,2), 1))
-    fichas.append(Reina("Negro", (7,3), 1))
+    # fichas.append(Caballo("Negro", (7,1), 1))
+    # fichas.append(Alfil("Negro", (7,2), 1))
+    # fichas.append(Reina("Negro", (7,3), 1))
     fichas.append(Rey("Negro", (7,4), 1))
-    fichas.append(Alfil("Negro", (7,5), 1))
-    fichas.append(Caballo("Negro", (7,6), 1))
+    # fichas.append(Alfil("Negro", (7,5), 1))
+    # fichas.append(Caballo("Negro", (7,6), 1))
     fichas.append(Torre("Negro", (7,7), 1))
-    for _ in range(8):
-        fichas.append(Peon("Negro", (6, _), 1))
+    # for _ in range(8):
+    #     fichas.append(Peon("Negro", (6, _), 1))
 
     inicializar_tablero(fichas)
     
@@ -390,6 +461,21 @@ def buscar_ficha_general(posicion, piezas):
     return None
 
 def mover(ficha, posicion):
+    # Movimiento Enroque
+    if isinstance(ficha, Rey):
+        enroque_movimientos = ficha.enroque(board.tablero, board.tablero2)
+        if posicion in enroque_movimientos:
+            if posicion[1] == 6:  # Enroque corto
+                torre = buscar_ficha((posicion[0], 7))
+                board.mover_ficha(torre, (posicion[0], 5))
+            elif posicion[1] == 2:  # Enroque largo
+                torre = buscar_ficha((posicion[0], 0))
+                board.mover_ficha(torre, (posicion[0], 3))
+            board.mover_ficha(ficha, posicion)
+        return
+    else:
+        print("Movimiento no válido para la ficha seleccion: Enroque")
+        
     if posicion in ficha.movimientos_legales(board.tablero, board.tablero2):
         ficha_enemiga = buscar_ficha_general(posicion, board.fichas_oponentes(ficha.color,ficha.dimension))
         if ficha_enemiga:

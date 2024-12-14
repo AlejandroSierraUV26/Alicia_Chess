@@ -156,6 +156,26 @@ piezas.inicializar_piezas()
 # piezas.mover(rey1, (2,5))
 # piezas.mover(rey2, (5,5))
 
+
+# *Pruebas de movimiento de enroque 
+
+rey1 = piezas.buscar_ficha((0,4))
+torre1 = piezas.buscar_ficha((0,0))
+torre2 = piezas.buscar_ficha((0,7))
+
+rey2 = piezas.buscar_ficha((7,4))
+torre3 = piezas.buscar_ficha((7,0))
+torre4 = piezas.buscar_ficha((7,7))
+
+# Enroque corto
+piezas.mover(rey1, (0,2))
+
+piezas.mover(rey2, (7,6))
+
+
+
+
+
 piezas.mostrar_tablero()
 
 
