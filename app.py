@@ -6,28 +6,39 @@ from src import piezas
 piezas.inicializar_piezas()
 
 
-# *PRUEBA DE MOVIMIENTO DE PEON (Exito!)
+# *PRUEBA DE MOVIMIENTO DE PEON (Funciona bien por ahora)
 # peon1 = piezas.buscar_ficha((1,0))
 # peon2 = piezas.buscar_ficha((6,1))  
 # peon3 = piezas.buscar_ficha((1,1))
 # peon4 = piezas.buscar_ficha((6,0))
 
 
+# Prueba muerte por negro y blanco en el segundo mundo
+# peon1 = piezas.buscar_ficha((3,2))
+# peon2 = piezas.buscar_ficha((6,3))
+
+# piezas.mover(peon1, (4,2))
+# piezas.mover(peon2, (5,3))
+
+# piezas.movimientos_posibles(peon1)
+
+# piezas.mover(peon1, (5,3))
 
 # piezas.mover(peon1, (3,0))
 # piezas.mover(peon2, (4,1))
 # piezas.mover(peon3, (3,1))
 # piezas.mover(peon4, (4,0))
 
-# piezas.movimientos_posibles(peon2)
+# piezas.movimientos_posibles(peon1)
 
-# *PRUEBA DE MOVIMIENTO DE TORRE (Error muy extraño, matando a sus enemigos)
-# torre1 = piezas.buscar_ficha((0,0))
+# *PRUEBA DE MOVIMIENTO DE TORRE (Funciona bien por ahora)
+# torre1 = piezas.buscar_ficha((4,0))
 # torre2 = piezas.buscar_ficha((5,5))
 # torre3 = piezas.buscar_ficha((0,7)) 
 # torre4 = piezas.buscar_ficha((7,7))
 
-# piezas.movimientos_posibles(torre3)
+# piezas.movimientos_posibles(torre1)
+# piezas.mover(torre1, (3,0))
 
 
 # piezas.mover(torre1, (4,0))
@@ -43,12 +54,15 @@ piezas.inicializar_piezas()
     
 
 
-# *PRUEBA DE MOVIMIENTO DE CABALLO (Error muy extraño)
+# *PRUEBA DE MOVIMIENTO DE CABALLO (Funciona bien por ahora)
 
 # caballo1 = piezas.buscar_ficha((0,1))
 # caballo2 = piezas.buscar_ficha((7,1))
 # caballo3 = piezas.buscar_ficha((0,6))
 # caballo4 = piezas.buscar_ficha((7,6))
+
+# piezas.movimientos_posibles(caballo1)
+# piezas.mover(caballo1, (2,2))
 
 # piezas.mover(caballo1, (2,0))
 # piezas.mover(caballo2, (5,0))

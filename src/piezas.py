@@ -363,8 +363,13 @@ def inicializar_piezas():
     fichas.append(Alfil("Blanco", (0, 5), 1))
     fichas.append(Caballo("Blanco", (0, 6), 1))
     fichas.append(Torre("Blanco", (0, 7), 1))
-    for _ in range(8):
-        fichas.append(Peon("Blanco", (1, _), 1))
+    # for _ in range(8):
+    #     fichas.append(Peon("Blanco", (1, _), 1))
+
+    fichas.append(Peon("Blanco", (3, 2), 1))
+    fichas.append(Peon("Negro", (6, 3), 1))
+    
+    
         
     # Crear piezas negras
     fichas.append(Torre("Negro", (7,0), 1))   
@@ -375,8 +380,8 @@ def inicializar_piezas():
     fichas.append(Alfil("Negro", (7,5), 1))
     fichas.append(Caballo("Negro", (7,6), 1))
     fichas.append(Torre("Negro", (7,7), 1))
-    for _ in range(8):
-        fichas.append(Peon("Negro", (6, _), 1))
+    # for _ in range(8):
+    #     fichas.append(Peon("Negro", (6, _), 1))
 
     inicializar_tablero(fichas)
     
