@@ -182,53 +182,28 @@ class Alfil(Pieza):
     def movimientos_legales(self, tablero_actual, tablero_opuesto):
         movimientos = []
         fila, columna = self.posicion
-        for i in range(1, 8):
-            if fila + i < 8 and columna + i < 8:
-                if tablero_actual[fila + i][columna + i] is None:
-                    movimientos.append((fila + i, columna + i))
-                elif tablero_actual[fila + i][columna + i].color != self.color:
-                    movimientos.append((fila + i, columna + i))
-                    break
-                else:
-                    break
-            else:
-                break
+        if self.dimension == 1:
+            tablero = tablero_actual
+        else:
+            tablero = tablero_opuesto
+        # Dirección de movimiento del alfil: [arriba-derecha, arriba-izquierda, abajo-derecha, abajo-izquierda]
+        direcciones = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
 
-        for i in range(1, 8):
-            if fila + i < 8 and columna - i >= 0:
-                if tablero_actual[fila + i][columna - i] is None:
-                    movimientos.append((fila + i, columna - i))
-                elif tablero_actual[fila + i][columna - i].color != self.color:
-                    movimientos.append((fila + i, columna - i))
-                    break
+        for dx, dy in direcciones:
+            for i in range(1, 8):  # Máximo 7 pasos en el tablero
+                nueva_fila = fila + i * dx
+                nueva_columna = columna + i * dy
+                if 0 <= nueva_fila < 8 and 0 <= nueva_columna < 8:  # Dentro de los límites del tablero
+                    pieza = tablero[nueva_fila][nueva_columna]
+                    if pieza is None:  # Celda vacía, movimiento válido
+                        movimientos.append((nueva_fila, nueva_columna))
+                    elif pieza.color != self.color:  # Celda ocupada por una pieza enemiga
+                        movimientos.append((nueva_fila, nueva_columna))
+                        break  # El alfil no puede continuar después de capturar
+                    else:  # Celda ocupada por una pieza aliada
+                        break  # No puede continuar por piezas aliadas
                 else:
-                    break
-            else:
-                break
-
-        for i in range(1, 8):
-            if fila - i >= 0 and columna + i < 8:
-                if tablero_actual[fila - i][columna + i] is None:
-                    movimientos.append((fila - i, columna + i))
-                elif tablero_actual[fila - i][columna + i].color != self.color:
-                    movimientos.append((fila - i, columna + i))
-                    break
-                else:
-                    break
-            else:
-                break
-
-        for i in range(1, 8):
-            if fila - i >= 0 and columna - i >= 0:
-                if tablero_actual[fila - i][columna - i] is None:
-                    movimientos.append((fila - i, columna - i))
-                elif tablero_actual[fila - i][columna - i].color != self.color:
-                    movimientos.append((fila - i, columna - i))
-                    break
-                else:
-                    break
-            else:
-                break
+                    break  # Fuera de los límites del tablero
 
         return movimientos
 
@@ -239,6 +214,11 @@ class Rey(Pieza):
     def movimientos_legales(self, tablero_actual, tablero_opuesto):
         movimientos = []
         fila, columna = self.posicion
+        if self.dimension == 1:
+            tablero = tablero_actual
+        else:
+            tablero = tablero_opuesto
+            
         posibles_movimientos = [
             (fila + 1, columna), (fila - 1, columna),
             (fila, columna + 1), (fila, columna - 1),
@@ -247,7 +227,7 @@ class Rey(Pieza):
         ]
         for mov in posibles_movimientos:
             if 0 <= mov[0] < 8 and 0 <= mov[1] < 8:
-                pieza = tablero_actual[mov[0]][mov[1]]
+                pieza = tablero[mov[0]][mov[1]]
                 if pieza is None or pieza.color != self.color:
                     movimientos.append(mov)
         return movimientos
@@ -258,39 +238,45 @@ class Reina(Pieza):
     def movimientos_legales(self, tablero_actual, tablero_opuesto):
         movimientos = []
         fila, columna = self.posicion
+        
+        if self.dimension == 1:
+            tablero = tablero_actual
+        else:
+            tablero = tablero_opuesto
+            
 
         # Movimientos como Torre
         for i in range(fila + 1, 8):
-            if tablero_actual[i][columna] is None:
+            if tablero[i][columna] is None:
                 movimientos.append((i, columna))
-            elif tablero_actual[i][columna].color != self.color:
+            elif tablero[i][columna].color != self.color:
                 movimientos.append((i, columna))
                 break
             else:
                 break
 
         for i in range(fila - 1, -1, -1):
-            if tablero_actual[i][columna] is None:
+            if tablero[i][columna] is None:
                 movimientos.append((i, columna))
-            elif tablero_actual[i][columna].color != self.color:
+            elif tablero[i][columna].color != self.color:
                 movimientos.append((i, columna))
                 break
             else:
                 break
 
         for i in range(columna + 1, 8):
-            if tablero_actual[fila][i] is None:
+            if tablero[fila][i] is None:
                 movimientos.append((fila, i))
-            elif tablero_actual[fila][i].color != self.color:
+            elif tablero[fila][i].color != self.color:
                 movimientos.append((fila, i))
                 break
             else:
                 break
 
         for i in range(columna - 1, -1, -1):
-            if tablero_actual[fila][i] is None:
+            if tablero[fila][i] is None:
                 movimientos.append((fila, i))
-            elif tablero_actual[fila][i].color != self.color:
+            elif tablero[fila][i].color != self.color:
                 movimientos.append((fila, i))
                 break
             else:
@@ -299,9 +285,9 @@ class Reina(Pieza):
         # Movimientos como Alfil
         for i in range(1, 8):
             if fila + i < 8 and columna + i < 8:
-                if tablero_actual[fila + i][columna + i] is None:
+                if tablero[fila + i][columna + i] is None:
                     movimientos.append((fila + i, columna + i))
-                elif tablero_actual[fila + i][columna + i].color != self.color:
+                elif tablero[fila + i][columna + i].color != self.color:
                     movimientos.append((fila + i, columna + i))
                     break
                 else:
@@ -311,9 +297,9 @@ class Reina(Pieza):
 
         for i in range(1, 8):
             if fila + i < 8 and columna - i >= 0:
-                if tablero_actual[fila + i][columna - i] is None:
+                if tablero[fila + i][columna - i] is None:
                     movimientos.append((fila + i, columna - i))
-                elif tablero_actual[fila + i][columna - i].color != self.color:
+                elif tablero[fila + i][columna - i].color != self.color:
                     movimientos.append((fila + i, columna - i))
                     break
                 else:
@@ -323,9 +309,9 @@ class Reina(Pieza):
 
         for i in range(1, 8):
             if fila - i >= 0 and columna + i < 8:
-                if tablero_actual[fila - i][columna + i] is None:
+                if tablero[fila - i][columna + i] is None:
                     movimientos.append((fila - i, columna + i))
-                elif tablero_actual[fila - i][columna + i].color != self.color:
+                elif tablero[fila - i][columna + i].color != self.color:
                     movimientos.append((fila - i, columna + i))
                     break
                 else:
@@ -335,9 +321,9 @@ class Reina(Pieza):
 
         for i in range(1, 8):
             if fila - i >= 0 and columna - i >= 0:
-                if tablero_actual[fila - i][columna - i] is None:
+                if tablero[fila - i][columna - i] is None:
                     movimientos.append((fila - i, columna - i))
-                elif tablero_actual[fila - i][columna - i].color != self.color:
+                elif tablero[fila - i][columna - i].color != self.color:
                     movimientos.append((fila - i, columna - i))
                     break
                 else:
@@ -363,12 +349,8 @@ def inicializar_piezas():
     fichas.append(Alfil("Blanco", (0, 5), 1))
     fichas.append(Caballo("Blanco", (0, 6), 1))
     fichas.append(Torre("Blanco", (0, 7), 1))
-    # for _ in range(8):
-    #     fichas.append(Peon("Blanco", (1, _), 1))
-
-    fichas.append(Peon("Blanco", (3, 2), 1))
-    fichas.append(Peon("Negro", (6, 3), 1))
-    
+    for _ in range(8):
+        fichas.append(Peon("Blanco", (1, _), 1))
     
         
     # Crear piezas negras
@@ -380,8 +362,8 @@ def inicializar_piezas():
     fichas.append(Alfil("Negro", (7,5), 1))
     fichas.append(Caballo("Negro", (7,6), 1))
     fichas.append(Torre("Negro", (7,7), 1))
-    # for _ in range(8):
-    #     fichas.append(Peon("Negro", (6, _), 1))
+    for _ in range(8):
+        fichas.append(Peon("Negro", (6, _), 1))
 
     inicializar_tablero(fichas)
     

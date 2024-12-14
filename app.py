@@ -74,6 +74,88 @@ piezas.inicializar_piezas()
 # for i in range(len(piezas.fichas)):
 #     print(f"{piezas.fichas[i].posicion} : {piezas.fichas[i].dimension} : {piezas.fichas[i].color}")
 
+# *Pruebas de movimiento de alfil (Funciona bien por ahora)
+# alfil1 = piezas.buscar_ficha((0,2))
+# alfil2 = piezas.buscar_ficha((7,2))
+
+# piezas.movimientos_posibles(alfil1)
+# piezas.movimientos_posibles(alfil2)
+
+# piezas.mover(alfil1, (1,1))
+# piezas.mover(alfil2, (6,1))
+
+# peon1 = piezas.buscar_ficha((4,2))
+# peon2 = piezas.buscar_ficha((3,2))
+
+
+
+# piezas.mover(peon1, (5,2))
+# piezas.mover(peon2, (2,2))
+# piezas.movimientos_posibles(alfil1)
+# piezas.movimientos_posibles(alfil2)
+
+# piezas.mover(alfil1, (2,2))
+# print(piezas.board.tablero[5])
+# print(piezas.board.tablero2[5])
+
+# *Pruebas de movimiento de reina (Funciona bien por ahora)
+
+# reina1 = piezas.buscar_ficha((0,3))
+# reina2 = piezas.buscar_ficha((7,3))
+
+
+
+# piezas.mover(reina1, (1,2))
+# piezas.mover(reina1, (2,2))
+# piezas.mover(reina1, (3,2))
+# piezas.mover(reina2, (6,2))
+# piezas.mover(reina2, (5,2))
+# piezas.mover(reina2, (4,2))
+
+# peon1 = piezas.buscar_ficha((2,1))
+# peon2 = piezas.buscar_ficha((2,3))
+# peon3 = piezas.buscar_ficha((5,1))
+# peon4 = piezas.buscar_ficha((5,3))
+# caballo1 = piezas.buscar_ficha((0,1))
+# caballo2 = piezas.buscar_ficha((7,1))
+
+# piezas.mover(peon1, (3,1))
+# piezas.mover(peon2, (3,3))
+# piezas.mover(peon3, (4,1))
+# piezas.mover(peon4, (4,3))
+
+
+# piezas.mover(caballo1, (2,2))
+# piezas.mover(caballo2, (5,2))
+
+# piezas.movimientos_posibles(reina1)
+# piezas.movimientos_posibles(reina2)
+
+# piezas.mover(reina1, (4,2)) 
+
+# *Pruebas de movimiento de rey (Funciona bien por ahora)
+
+# rey1 = piezas.buscar_ficha((0,4))
+# rey2 = piezas.buscar_ficha((7,4))
+
+# peon1 = piezas.buscar_ficha((4,5))
+# peon2 = piezas.buscar_ficha((3,5))
+
+# piezas.mover(peon1, (5,5))
+# piezas.mover(peon2, (2,5))
+
+
+
+
+# piezas.mover(rey1, (1,4))
+# piezas.mover(rey2, (6,4))
+
+
+# piezas.movimientos_posibles(rey1)
+
+# piezas.mover(rey1, (2,5))
+# piezas.mover(rey2, (5,5))
+
 piezas.mostrar_tablero()
 
 
