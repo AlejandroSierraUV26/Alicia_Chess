@@ -1,4 +1,4 @@
-import tablero
+from src import tablero
 
 class Pieza:
     def __init__(self, tipo, color, posicion, dimension):
@@ -311,7 +311,6 @@ class Rey(Pieza):
         for pieza in fichas:
             if pieza.color != self.color:
                 movimientos_enemigos = pieza.movimientos_legales(tablero_actual, tablero_opuesto)
-                print(movimientos_enemigos)
                 if self.posicion in movimientos_enemigos:
                     return True
     def jaque_mate(self, tablero_actual, tablero_opuesto):
@@ -470,7 +469,7 @@ def inicializar_piezas():
     fichas.append(Rey("Negro", (7,4), 1))
     fichas.append(Alfil("Negro", (7,5), 1))
     fichas.append(Caballo("Negro", (7,6), 1))
-    fichas.append(Torre("Negro", (7,7), 1))
+    fichas.append(Torre("Negro", (7,7), 2))
     for _ in range(8):
         fichas.append(Peon("Negro", (6, _), 1))
 
@@ -485,7 +484,8 @@ def inicializar_tablero(piezas):
 
 def mostrar_tablero():
     board.mostrar()
-    
+def obtener_tableros():
+    return board.tablero, board.tablero2
 def buscar_ficha(posicion):
     for pieza in fichas:
         if pieza.posicion == posicion:
@@ -498,28 +498,24 @@ def buscar_ficha_general(posicion, piezas):
             return pieza
     return None
 
-def mover(ficha, posicion):
-    # Si mi rey esta en jaque tendre que mover una ficha para defenderlo
-    
+def mover(ficha, posicion, simular=False):
     rey = next((pieza for pieza in fichas if isinstance(pieza, Rey) and pieza.color == ficha.color), None)
 
-    for pieza in fichas:
-        if isinstance(pieza, Rey) and pieza.color == ficha.color:
-            rey = pieza
-            break
-    
     if ficha.color != rey.color:
         if posicion in ficha.movimientos_legales(board.tablero, board.tablero2):
-            ficha_enemiga = buscar_ficha_general(posicion, board.fichas_oponentes(ficha.color,ficha.dimension))
+            if simular:
+                return True
+            ficha_enemiga = buscar_ficha_general(posicion, board.fichas_oponentes(ficha.color, ficha.dimension))
             if ficha_enemiga:
                 board.eliminar_ficha(ficha_enemiga, posicion)
-                fichas.remove(ficha_enemiga)
-                print("Eliminado")
+                print("Eliminado : {}".format(ficha_enemiga.tipo, ficha_enemiga.posicion, ficha_enemiga.color))
+                if ficha_enemiga in fichas:
+                    fichas.remove(ficha_enemiga)
             board.mover_ficha(ficha, posicion)
-            return
+            return True
         else:
-            print("Movimiento no válido para la ficha seleccionada.")
-            return            
+            return False
+
     if rey and rey.jaque(board.tablero, board.tablero2):
         movimientos_defensivos = []
         fichas_defensivas = []
@@ -528,10 +524,9 @@ def mover(ficha, posicion):
             tablero = board.tablero
         else:
             tablero = board.tablero2
-            
-        # Dejar solo los movimientos que tiene la ficha atacante para llegar al rey
-        movimientos_para_defender = [] # Posicion atacante
-        fichas_defensivas = []# Posiciones de las fichas defensivas
+
+        movimientos_para_defender = []
+        fichas_defensivas = []
 
         for pieza in fichas:
             if pieza.color != rey.color:
@@ -539,83 +534,57 @@ def mover(ficha, posicion):
             else:
                 fichas_defensivas.extend(pieza.movimientos_legales(tablero, board.tablero2))
 
-        # Movimientos rey, disponibles para defender
         diferencia_simetrica = set(fichas_defensivas).difference(movimientos_para_defender).intersection(rey.movimientos_legales(tablero, board.tablero2))
-        print(f"Diferencia simetrica : {diferencia_simetrica}")
         if movimientos_para_defender == fichas_defensivas:
             print("No se puede defender")
-            return
+            return False
         if ficha.color == rey.color:
             if ficha.tipo == "Rey":
                 if posicion in diferencia_simetrica:
+                    if simular:
+                        return True
                     board.mover_ficha(ficha, posicion)
-                    print(f"{ficha.tipo} : {posicion}")
-                    return
+                    return True
                 else:
-                    print("Movimiento no válido para la ficha seleccionada.")
-                    return
+                    return False
             else:
-                if posicion in diferencia:
+                if posicion in diferencia_simetrica:
+                    if simular:
+                        return True
                     board.mover_ficha(ficha, posicion)
-                    print(f"{ficha.tipo} : {posicion}")
-                    return
+                    return True
                 else:
-                    print("Movimiento no válido para la ficha seleccionada.")
-                    return
+                    return False
 
-        
-            
-        # fichas_para_defender = []
-        # for ficha_ in fichas:
-        #     if ficha_.color == rey.color:
-        #         for mov in ficha_.movimientos_legales(tablero, board.tablero2):
-        #             if ficha_.tipo == "Rey":
-        #                 # Evitar que el rey se mueva a una casilla que esta atacando el enemigo
-        #                 if mov not in movimientos_para_defender:
-        #                     # Se puede mover a una casilla que no esta atacando el enemigo
-        #                     if ficha_ == ficha and mov == posicion:
-        #                         board.mover_ficha(ficha, mov)
-        #                         print(f"{ficha_.tipo} : {mov}")
-        #                         return
-                            
-        #             if mov in movimientos_para_defender:
-        #                 if ficha_ == ficha and mov == posicion:
-        #                     print(f"{ficha.tipo} : {mov}")
-        #                     board.mover_ficha(ficha, mov)
-        #                     return
-                    
-                        
-                        
-            
-        return 
-        
-        
-        
-        
-      # Movimiento Enroque
     if not rey.jaque(board.tablero, board.tablero2):
         if isinstance(ficha, Rey):
             enroque_movimientos = ficha.enroque(board.tablero, board.tablero2)
             if posicion in enroque_movimientos:
-                if posicion[1] == 6:  # Enroque corto
+                if simular:
+                    return True
+                if posicion[1] == 6:
                     torre = buscar_ficha((posicion[0], 7))
                     board.mover_ficha(torre, (posicion[0], 5))
-                elif posicion[1] == 2:  # Enroque largo
+                elif posicion[1] == 2:
                     torre = buscar_ficha((posicion[0], 0))
                     board.mover_ficha(torre, (posicion[0], 3))
                 board.mover_ficha(ficha, posicion)
-            return
+                return True
         if posicion in ficha.movimientos_legales(board.tablero, board.tablero2):
-            ficha_enemiga = buscar_ficha_general(posicion, board.fichas_oponentes(ficha.color,ficha.dimension))
+            if simular:
+                return True
+            ficha_enemiga = buscar_ficha_general(posicion, board.fichas_oponentes(ficha.color, ficha.dimension))
             if ficha_enemiga:
                 board.eliminar_ficha(ficha_enemiga, posicion)
-                fichas.remove(ficha_enemiga)
-                print("Eliminado")
+                print(f"Eliminado : {ficha_enemiga.tipo} {ficha_enemiga.posicion} {ficha_enemiga.color}")
+                if ficha_enemiga in fichas:
+                    fichas.remove(ficha_enemiga)
             board.mover_ficha(ficha, posicion)
+            return True
         else:
-            print("Movimiento no válido para la ficha seleccionada.")
+            return False
     else:
-        print("Movimiento no válido para la ficha seleccionada: Rey en jaque.")
+        return False
 def movimientos_posibles(ficha):
     print(ficha.movimientos_legales(board.tablero, board.tablero2))
     
@@ -625,7 +594,6 @@ def indicar_jaque():
             if pieza.jaque(board.tablero, board.tablero2):
                 print(f"El rey {pieza.color} está en jaque.")
                 return True
-    print("No hay jaque.")
     return False
 
 def indicar_jaque_mate():
@@ -634,4 +602,11 @@ def indicar_jaque_mate():
             if pieza.jaque_mate(board.tablero, board.tablero2):
                 # print(f"El rey {pieza.color} está en jaque mate y ha perdido.")
                 return True
+    return False
+
+def finalizar_juego():
+    # Si uno de los reyes es eliminado indicar que el juego ha terminado
+    reyes = [pieza for pieza in fichas if isinstance(pieza, Rey)]
+    if len(reyes) < 2:
+        return True
     return False

@@ -45,28 +45,44 @@ class Tablero:
             return pieza.tipo[0]  # Sin color si no coincide
     def agregar_ficha(self, ficha, posicion):
         fila, columna = posicion
-        self.tablero[fila][columna] = ficha
+        if ficha.dimension == 1:
+            self.tablero[fila][columna] = ficha
+        if ficha.dimension == 2:
+            self.tablero2[fila][columna] = ficha
+        
         
     def mover_ficha(self, ficha, posicion):
         fila, columna = posicion
-        if ficha in [item for sublist in self.tablero for item in sublist]:
+        # Verificar posicion en los dos mundos
+        if self.tablero[fila][columna] is not None:
+            print("Movimiento inválido: posición ocupada")
+            return
+        if self.tablero2[fila][columna] is not None:
+            print("Movimiento inválido: posición ocupada")
+            return
+        
+        
+        # Eliminar la ficha de su posición anterior en ambos tableros
+        self.tablero[ficha.posicion[0]][ficha.posicion[1]] = None
+        self.tablero2[ficha.posicion[0]][ficha.posicion[1]] = None
+        
+        # Mover la ficha a la nueva posición
+        if ficha.dimension == 1:
             if self.tablero2[fila][columna] is None or self.tablero2[fila][columna].color != ficha.color:
-                if ficha.dimension == 1:
-                    ficha.dimension = 2
-                else:
-                    ficha.dimension = 2
-                self.tablero[ficha.posicion[0]][ficha.posicion[1]] = None
+                ficha.dimension = 2
                 self.tablero2[fila][columna] = ficha
+                ficha.posicion = posicion
             else:
                 print("Movimiento inválido: posición ocupada por un aliado")
         else:
             if self.tablero[fila][columna] is None or self.tablero[fila][columna].color != ficha.color:
-                self.tablero2[ficha.posicion[0]][ficha.posicion[1]] = None
+                ficha.dimension = 1
                 self.tablero[fila][columna] = ficha
-                
+                ficha.posicion = posicion
             else:
                 print("Movimiento inválido: posición ocupada por un aliado")
-        ficha.posicion = posicion
+        
+        
 
     def eliminar_ficha(self, ficha, posicion):
         fila, columna = posicion

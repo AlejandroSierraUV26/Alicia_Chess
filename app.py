@@ -1,210 +1,94 @@
 import time
 import os
 from src import piezas
+import random
+import time
 
 
 piezas.inicializar_piezas()
+# Realizar un ciclo infinito
+fichas_blancas = [ item for sublist in piezas.board.tablero for item in sublist if item and item.color == "Blanco"]
+fichas_blancas.extend(item for sublist in piezas.board.tablero2 for item in sublist if item and item.color == "Blanco")
+fichas_negras = [ item for sublist in piezas.board.tablero2 for item in sublist if item and item.color  == "Negro"]
+fichas_negras.extend(item for sublist in piezas.board.tablero for item in sublist if item and item.color == "Negro")
 
 
-# *PRUEBA DE MOVIMIENTO DE PEON (Funciona bien por ahora)
-# peon1 = piezas.buscar_ficha((1,0))
-# peon2 = piezas.buscar_ficha((6,1))  
-# peon3 = piezas.buscar_ficha((1,1))
-# peon4 = piezas.buscar_ficha((6,0))
+def lista_movimientos_posibles(ficha):
+    movimientos = ficha.movimientos_legales(piezas.board.tablero,piezas.board.tablero2)
+    elems = []
+    if movimientos:
+        for mov in movimientos:
+            elems.append([ficha.tipo, ficha.posicion, ficha.color, mov, ficha.dimension])
+            
+    return elems
+def seleccionar_ficha(posicion, fichas):
+    for ficha in fichas:
+        if ficha.posicion == posicion:
+            return ficha
+    return None
+
+def mover_ficha(ficha, nueva_posicion):
+    piezas.mover(ficha, nueva_posicion)
 
 
-# Prueba muerte por negro y blanco en el segundo mundo
-# peon1 = piezas.buscar_ficha((3,2))
-# peon2 = piezas.buscar_ficha((6,3))
+# Hacer el juego por turnos
+turno_blanco = True
 
-# piezas.mover(peon1, (4,2))
-# piezas.mover(peon2, (5,3))
-
-# piezas.movimientos_posibles(peon1)
-
-# piezas.mover(peon1, (5,3))
-
-# piezas.mover(peon1, (3,0))
-# piezas.mover(peon2, (4,1))
-# piezas.mover(peon3, (3,1))
-# piezas.mover(peon4, (4,0))
-
-# piezas.movimientos_posibles(peon1)
-
-# *PRUEBA DE MOVIMIENTO DE TORRE (Funciona bien por ahora)
-# torre1 = piezas.buscar_ficha((4,0))
-# torre2 = piezas.buscar_ficha((5,5))
-# torre3 = piezas.buscar_ficha((0,7)) 
-# torre4 = piezas.buscar_ficha((7,7))
-
-# piezas.movimientos_posibles(torre1)
-# piezas.mover(torre1, (3,0))
-
-
-# piezas.mover(torre1, (4,0))
-# piezas.mover(torre2, (7,5))
-# piezas.mover(torre2, (7,0))
-# piezas.mover(torre2, (5,0))
-# piezas.mover(torre2, (4,0))
-# piezas.mover(torre4, (4,7))
-# piezas.mover(torre4, (1,7))
-# piezas.mover(torre3, (1,7))
-# for i in range(len(piezas.fichas)):
-#     print(f"{piezas.fichas[i].posicion} : {piezas.fichas[i].dimension} : {piezas.fichas[i].color} : {piezas.fichas[i].tipo}")
+while not piezas.finalizar_juego():
+    piezas.mostrar_tablero()
     
+    fichas_turno = fichas_blancas if turno_blanco else fichas_negras
+    
+    # Verificar si el jugador está en jaque
+    rey = next((pieza for pieza in fichas_turno if isinstance(pieza, piezas.Rey)), None)
+    if rey and rey.jaque(piezas.board.tablero, piezas.board.tablero2):
+        print(f"El rey {rey.color} está en jaque.")
+        movimientos_defensivos = []
+        for ficha in fichas_turno:
+            movimientos = lista_movimientos_posibles(ficha)
+            for movimiento in movimientos:
+                if piezas.mover(ficha, movimiento[3], simular=True):
+                    movimientos_defensivos.append((ficha, movimiento[3]))
+        
+        if not movimientos_defensivos:
+            print(f"El rey {rey.color} está en jaque mate. Fin del juego.")
+            break
+        else:
+            ficha_seleccionada, nueva_posicion = random.choice(movimientos_defensivos)
+            piezas.mover(ficha_seleccionada, nueva_posicion)
+    else:
+        ficha_seleccionada = random.choice(fichas_turno)
+        movimientos = lista_movimientos_posibles(ficha_seleccionada)
+        if movimientos:
+            movimiento = random.choice(movimientos)
+            piezas.mover(ficha_seleccionada, movimiento[3])
+        else:
+            print("No hay movimientos posibles para la ficha seleccionada.")
+    for elem in piezas.board.tablero2:
+        for item in elem:
+            if item:
+                if item.tipo == "Rey":
+                    print(item.color, item.posicion)
+    for elem in piezas.board.tablero:
+        for item in elem:
+            if item:
+                if item.tipo == "Rey":
+                    print(item.color, item.posicion)
+    turno_blanco = not turno_blanco 
 
+print(f"Fichas restantes: ")
 
-# *PRUEBA DE MOVIMIENTO DE CABALLO (Funciona bien por ahora)
-
-# caballo1 = piezas.buscar_ficha((0,1))
-# caballo2 = piezas.buscar_ficha((7,1))
-# caballo3 = piezas.buscar_ficha((0,6))
-# caballo4 = piezas.buscar_ficha((7,6))
-
-# piezas.movimientos_posibles(caballo1)
-# piezas.mover(caballo1, (2,2))
-
-# piezas.mover(caballo1, (2,0))
-# piezas.mover(caballo2, (5,0))
-# piezas.mover(caballo1, (4,1))
-# piezas.mover(caballo2, (6,2))
-
-# piezas.mover(caballo1, (6,2))
-
-# for i in range(len(piezas.fichas)):
-#     print(f"{piezas.fichas[i].posicion} : {piezas.fichas[i].dimension} : {piezas.fichas[i].color}")
-
-# *Pruebas de movimiento de alfil (Funciona bien por ahora)
-# alfil1 = piezas.buscar_ficha((0,2))
-# alfil2 = piezas.buscar_ficha((7,2))
-
-# piezas.movimientos_posibles(alfil1)
-# piezas.movimientos_posibles(alfil2)
-
-# piezas.mover(alfil1, (1,1))
-# piezas.mover(alfil2, (6,1))
-
-# peon1 = piezas.buscar_ficha((4,2))
-# peon2 = piezas.buscar_ficha((3,2))
-
-
-
-# piezas.mover(peon1, (5,2))
-# piezas.mover(peon2, (2,2))
-# piezas.movimientos_posibles(alfil1)
-# piezas.movimientos_posibles(alfil2)
-
-# piezas.mover(alfil1, (2,2))
-# print(piezas.board.tablero[5])
-# print(piezas.board.tablero2[5])
-
-# *Pruebas de movimiento de reina (Funciona bien por ahora)
-
-# reina1 = piezas.buscar_ficha((0,3))
-# reina2 = piezas.buscar_ficha((7,3))
-
-
-
-# piezas.mover(reina1, (1,2))
-# piezas.mover(reina1, (2,2))
-# piezas.mover(reina1, (3,2))
-# piezas.mover(reina2, (6,2))
-# piezas.mover(reina2, (5,2))
-# piezas.mover(reina2, (4,2))
-
-# peon1 = piezas.buscar_ficha((2,1))
-# peon2 = piezas.buscar_ficha((2,3))
-# peon3 = piezas.buscar_ficha((5,1))
-# peon4 = piezas.buscar_ficha((5,3))
-# caballo1 = piezas.buscar_ficha((0,1))
-# caballo2 = piezas.buscar_ficha((7,1))
-
-# piezas.mover(peon1, (3,1))
-# piezas.mover(peon2, (3,3))
-# piezas.mover(peon3, (4,1))
-# piezas.mover(peon4, (4,3))
-
-
-# piezas.mover(caballo1, (2,2))
-# piezas.mover(caballo2, (5,2))
-
-# piezas.movimientos_posibles(reina1)
-# piezas.movimientos_posibles(reina2)
-
-# piezas.mover(reina1, (4,2)) 
-
-# *Pruebas de movimiento de rey (Funciona bien por ahora)
-
-# rey1 = piezas.buscar_ficha((0,4))
-# rey2 = piezas.buscar_ficha((7,4))
-
-# peon1 = piezas.buscar_ficha((4,5))
-# peon2 = piezas.buscar_ficha((3,5))
-
-# piezas.mover(peon1, (5,5))
-# piezas.mover(peon2, (2,5))
-
-
-
-
-# piezas.mover(rey1, (1,4))
-# piezas.mover(rey2, (6,4))
-
-
-# piezas.movimientos_posibles(rey1)
-
-# piezas.mover(rey1, (2,5))
-# piezas.mover(rey2, (5,5))
-
-
-# *Pruebas de movimiento de enroque y Jaque
-
-# rey1 = piezas.buscar_ficha((0,4))
-# alfil1 = piezas.buscar_ficha((3,4))
-# torre2 = piezas.buscar_ficha((0,7))
-
-# rey2 = piezas.buscar_ficha((7,4))
-# torre3 = piezas.buscar_ficha((7,0))
-# torre4 = piezas.buscar_ficha((7,7))
-
-# # Enroque corto
-# piezas.mover(rey1, (0,2))
-# piezas.mover(rey2, (7,6))
-
-# torre1 = piezas.buscar_ficha((0,3))
-# piezas.mover(torre1, (1,3))
-
-
-# piezas.mover(alfil1, (2,3))
-# piezas.mover(alfil1, (0,1))
-
-
-# piezas.mover(torre3, (7,2))
-# piezas.mover(rey1, (0,2))
-# piezas.mover(alfil1, (1,2))
-
-
-# torre2 = piezas.buscar_ficha((0,7))
-# piezas.mover(torre2, (1,7))
-# piezas.indicar_jaque()
-
-# print(piezas.indicar_jaque_mate())
-
-# rey1 = piezas.buscar_ficha((0,4))
-
-# peon1 = piezas.buscar_ficha((5,5))
-
-# piezas.mover(peon1, (6,5))
-
-
-
-
-rey1 = piezas.buscar_ficha((0,4))
-
-# piezas.mover(rey1, (1,4))
-
-piezas.indicar_jaque()
-
-piezas.mostrar_tablero()
-
-
+a = 0
+for elem in piezas.board.tablero:
+    for item in elem:
+        if item:
+            if item.tipo == "Rey":
+                print(item.color, item.posicion)
+print(f"Tablero 1: {a} fichas")
+a = 0
+for elem in piezas.board.tablero2:
+    for item in elem:
+        if item:
+            if item.tipo == "Rey":
+                print(item.color, item.posicion)
+print(f"Tablero 2: {a} fichas")

@@ -76,6 +76,7 @@ def dibujar_tablero(ventana, inicio_x, inicio_y):
                 ventana.blit(img_negra, (x, y))
 
 
+
 def detectar_seleccion(mouse_pos, inicio_x, inicio_y):
     """
     Detecta si el mouse está sobre una casilla del tablero y devuelve su posición.
@@ -132,7 +133,29 @@ for ficha in piezas.fichas:
             ficha.img = img_rey_negro
     else:
         ficha.img = None
-            
+def mostrar_casillas_disponibles(ficha):
+    movimientos = ficha.movimientos_legales(piezas.board.tablero, piezas.board.tablero2)
+    
+    for movimiento in movimientos:
+        if ficha.dimension == 1:
+            x = inicio_x_tablero_izquierdo + movimiento[1] * CASILLA
+            y = MARGEN_SUPERIOR + movimiento[0] * CASILLA
+        else:
+            x = inicio_x_tablero_derecho + movimiento[1] * CASILLA
+            y = MARGEN_SUPERIOR + movimiento[0] * CASILLA
+        pygame.draw.rect(VENTANA, (0, 255, 0), (x, y, CASILLA, CASILLA), 3)
+        
+    
+    print("tipo:",ficha.tipo)
+    print("movimientos:",movimientos)
+def mover_ficha(ficha, nueva_posicion):
+    """
+    Mueve una ficha a una nueva posición y actualiza la interfaz.
+    """
+
+    piezas.mover(ficha, nueva_posicion)
+    
+    
 def mostrar_cuadro_informacion(ventana):
     """
     Dibuja un cuadro en blanco fijo debajo de los tableros
@@ -155,16 +178,16 @@ def mostrar_info_ficha(ventana, ficha):
     Muestra la información de la ficha en el cuadro debajo de los tableros.
     """
     fuente = pygame.font.Font(None, 36)  # Fuente para el texto
-    texto = f"Tipo: {ficha.tipo}, Color: {ficha.color}, Posición: {ficha.posicion}"  # Texto a mostrar
+    texto = f"Tipo: {ficha.tipo}, Color: {ficha.color}, Posición: {ficha.posicion}, Dimension: {ficha.dimension}"  # Texto a mostrar
     cuadro_texto = fuente.render(texto, True, (0, 0, 0))  # Texto negro
     ancho_texto = cuadro_texto.get_width()
+    mostrar_casillas_disponibles(ficha)
     
     # Calcular posición centrada dentro del cuadro
     posicion_x = (ANCHO - ancho_texto) // 2
     posicion_y = MARGEN_SUPERIOR + 8 * CASILLA + 40  # Posición dentro del cuadro
 
     ventana.blit(cuadro_texto, (posicion_x, posicion_y))  # Dibujar texto en la ventana
-
 
 # Variables para mantener la selección actual y la ficha seleccionada
 seleccion_izquierda = None
@@ -184,8 +207,22 @@ while corriendo:
     # Dibujar los dos tableros
     dibujar_tablero(VENTANA, inicio_x_tablero_izquierdo, MARGEN_SUPERIOR)  # Tablero izquierdo
     dibujar_tablero(VENTANA, inicio_x_tablero_derecho, MARGEN_SUPERIOR)  # Tablero derecho
-
-    # Detectar selección
+    # *Dibujar fichas en el tablero izquierdo
+    for fichas in piezas.board.tablero:
+        if fichas:
+            for ficha in fichas:
+                if ficha:
+                    poner_ficha(VENTANA, ficha.posicion[0], ficha.posicion[1], inicio_x_tablero_izquierdo, MARGEN_SUPERIOR, ficha.img)
+        
+    # *Dibujar fichas en el tablero derecho
+    for fichas in piezas.board.tablero2:
+        if fichas:
+            for ficha in fichas:
+                if ficha:
+                    poner_ficha(VENTANA, ficha.posicion[0], ficha.posicion[1], inicio_x_tablero_derecho, MARGEN_SUPERIOR, ficha.img)
+            
+    
+    # *Detectar selección
     mouse_pos = pygame.mouse.get_pos()
     mouse_click = pygame.mouse.get_pressed()
     keys = pygame.key.get_pressed()
@@ -193,21 +230,41 @@ while corriendo:
     if mouse_click[0] or any(keys):  # Si se hace clic con el botón izquierdo o se presiona una tecla
         # Verificar selección en el tablero izquierdo
         seleccion = detectar_seleccion(mouse_pos, inicio_x_tablero_izquierdo, MARGEN_SUPERIOR)
+        print(seleccion)
         if seleccion:
-            seleccion_izquierda = seleccion  # Guardar la selección
-            ficha_seleccionada = None  # Resetear ficha seleccionada
-            for ficha in piezas.fichas:
-                if ficha.dimension == 1 and ficha.posicion == (seleccion[1], seleccion[0]):
-                    ficha_seleccionada = ficha  # Guardar la ficha seleccionada
+            if ficha_seleccionada and ficha_seleccionada.dimension == 1:
+                mover_ficha(ficha_seleccionada, (seleccion[1], seleccion[0]))
+                ficha_seleccionada = None
+                seleccion_izquierda = None  # Restablecer selección izquierda
+            else:
+                seleccion_izquierda = seleccion  # Guardar la selección
+                ficha_seleccionada = None  # Resetear ficha seleccionada
+                for fichas in piezas.board.tablero:
+                    if fichas:
+                        if fichas:
+                            for ficha in fichas:
+                                if ficha:
+                                    if ficha.dimension == 1 and ficha.posicion == (seleccion[1], seleccion[0]):
+                                        ficha_seleccionada = ficha        
 
         # Verificar selección en el tablero derecho
         seleccion = detectar_seleccion(mouse_pos, inicio_x_tablero_derecho, MARGEN_SUPERIOR)
         if seleccion:
-            seleccion_derecha = seleccion  # Guardar la selección
-            ficha_seleccionada = None  # Resetear ficha seleccionada
-            for ficha in piezas.fichas:
-                if ficha.dimension == 2 and ficha.posicion == (seleccion[1], seleccion[0]):
-                    ficha_seleccionada = ficha  # Guardar la ficha seleccionada
+            if ficha_seleccionada and ficha_seleccionada.dimension == 2:
+                mover_ficha(ficha_seleccionada, (seleccion[1], seleccion[0]))
+                ficha_seleccionada = None
+                seleccion_derecha = None  # Restablecer selección derecha
+            else:
+                seleccion_derecha = seleccion  # Guardar la selección
+                ficha_seleccionada = None  # Resetear ficha seleccionada
+                for fichas in piezas.board.tablero2:
+                    if fichas:
+                        for ficha in fichas:
+                            if ficha:
+                                if ficha.dimension == 2 and ficha.posicion == (seleccion[1], seleccion[0]):
+                                    ficha_seleccionada = ficha
+                                    break   
+                        
 
     # Dibujar siempre las selecciones actuales si existen
     if seleccion_izquierda:
@@ -226,16 +283,6 @@ while corriendo:
             3
         )
 
-    # Dibujar fichas en el tablero izquierdo
-    for ficha in piezas.fichas:
-        if ficha.dimension == 1:
-            poner_ficha(VENTANA, ficha.posicion[0], ficha.posicion[1], inicio_x_tablero_izquierdo, MARGEN_SUPERIOR, ficha.img)
-
-    # Dibujar fichas en el tablero derecho
-    for ficha in piezas.fichas:
-        if ficha.dimension == 2:
-            poner_ficha(VENTANA, ficha.posicion[0], ficha.posicion[1], inicio_x_tablero_derecho, MARGEN_SUPERIOR, ficha.img)
-
     # Mostrar cuadro fijo para la información
     mostrar_cuadro_informacion(VENTANA)
 
@@ -247,3 +294,4 @@ while corriendo:
     pygame.display.flip()
 
 pygame.quit()
+
