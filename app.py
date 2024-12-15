@@ -157,39 +157,53 @@ piezas.inicializar_piezas()
 # piezas.mover(rey2, (5,5))
 
 
-# *Pruebas de movimiento de enroque 
+# *Pruebas de movimiento de enroque y Jaque
+
+# rey1 = piezas.buscar_ficha((0,4))
+# alfil1 = piezas.buscar_ficha((3,4))
+# torre2 = piezas.buscar_ficha((0,7))
+
+# rey2 = piezas.buscar_ficha((7,4))
+# torre3 = piezas.buscar_ficha((7,0))
+# torre4 = piezas.buscar_ficha((7,7))
+
+# # Enroque corto
+# piezas.mover(rey1, (0,2))
+# piezas.mover(rey2, (7,6))
+
+# torre1 = piezas.buscar_ficha((0,3))
+# piezas.mover(torre1, (1,3))
+
+
+# piezas.mover(alfil1, (2,3))
+# piezas.mover(alfil1, (0,1))
+
+
+# piezas.mover(torre3, (7,2))
+# piezas.mover(rey1, (0,2))
+# piezas.mover(alfil1, (1,2))
+
+
+# torre2 = piezas.buscar_ficha((0,7))
+# piezas.mover(torre2, (1,7))
+# piezas.indicar_jaque()
+
+# print(piezas.indicar_jaque_mate())
+
+# rey1 = piezas.buscar_ficha((0,4))
+
+# peon1 = piezas.buscar_ficha((5,5))
+
+# piezas.mover(peon1, (6,5))
+
+
+
 
 rey1 = piezas.buscar_ficha((0,4))
-alfil1 = piezas.buscar_ficha((3,4))
-torre2 = piezas.buscar_ficha((0,7))
 
-rey2 = piezas.buscar_ficha((7,4))
-torre3 = piezas.buscar_ficha((7,0))
-torre4 = piezas.buscar_ficha((7,7))
+# piezas.mover(rey1, (1,4))
 
-# Enroque corto
-piezas.mover(rey1, (0,2))
-piezas.mover(rey2, (7,6))
-
-torre1 = piezas.buscar_ficha((0,3))
-piezas.mover(torre1, (1,3))
-
-
-piezas.mover(alfil1, (2,3))
-piezas.mover(alfil1, (0,1))
-
-
-piezas.mover(torre3, (7,2))
-piezas.mover(rey1, (0,2))
-piezas.mover(alfil1, (1,2))
-
-
-
-
-
-
-
-
+piezas.indicar_jaque()
 
 piezas.mostrar_tablero()
 
