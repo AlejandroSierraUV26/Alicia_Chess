@@ -289,9 +289,22 @@ class Rey(Pieza):
                                 movimientos.append((7, 2))
         return movimientos
     
-    def jaque(self):
+    def jaque(self, tablero_actual, tablero_opuesto):
         # Verificar si el rey está en jaque
-        pass
+        fila, columna = self.posicion
+        if self.dimension == 1:
+            tablero = tablero_actual
+        else:
+            tablero = tablero_opuesto
+
+        # Obtener todas las piezas enemigas
+        piezas_enemigas = [pieza for fila in tablero for pieza in fila if pieza and pieza.color != self.color]
+
+        # Verificar si alguna pieza enemiga puede capturar al rey
+        for pieza in piezas_enemigas:
+            if self.posicion in pieza.movimientos_legales(tablero_actual, tablero_opuesto):
+                return True
+        return False
     
     def jaque_mate(self):
         # Verificar si el rey está en jaque mate
@@ -423,6 +436,7 @@ def inicializar_piezas():
     # for _ in range(8):
     #     fichas.append(Peon("Blanco", (1, _), 1))
     
+    fichas.append(Alfil("Blanco", (3, 4), 1))
         
     # Crear piezas negras
     fichas.append(Torre("Negro", (7,0), 1))   
@@ -461,6 +475,45 @@ def buscar_ficha_general(posicion, piezas):
     return None
 
 def mover(ficha, posicion):
+    # Si mi rey esta en jaque tendre que mover una ficha para defenderlo
+    rey = next((pieza for pieza in fichas if isinstance(pieza, Rey) and pieza.color == ficha.color), None)
+    
+    for pieza in fichas:
+        if isinstance(pieza, Rey) and pieza.color == ficha.color:
+            rey = pieza
+            break
+    if rey and rey.jaque(board.tablero, board.tablero2):
+        movimientos_defensivos = []
+        fichas_defensivas = []
+
+        if rey.dimension == 1:
+            tablero = board.tablero
+        else:
+            tablero = board.tablero2
+            
+        for pieza in fichas:
+            if pieza.color == rey.color:
+                for mov in pieza.movimientos_legales(tablero, board.tablero2):
+                    movimientos_defensivos.append(mov)
+                    fichas_defensivas.append(pieza)
+        if posicion in movimientos_defensivos:
+            ficha_defensiva = fichas_defensivas[movimientos_defensivos.index(posicion)]
+            if ficha in set(fichas_defensivas):
+                if posicion in ficha.movimientos_legales(board.tablero, board.tablero2):
+                    ficha_enemiga = buscar_ficha_general(posicion, board.fichas_oponentes(ficha.color,ficha.dimension))
+                    if ficha_enemiga:
+                        board.eliminar_ficha(ficha_enemiga, posicion)
+                        fichas.remove(ficha_enemiga)
+                        print("Eliminado")
+                    board.mover_ficha(ficha, posicion)
+                else:
+                    print("Movimiento no válido para la ficha seleccionada.")
+                    return
+                return
+            return
+        else:
+            print("Movimiento no válido para la ficha seleccionada.")
+            return
     # Movimiento Enroque
     if isinstance(ficha, Rey):
         enroque_movimientos = ficha.enroque(board.tablero, board.tablero2)
@@ -473,9 +526,6 @@ def mover(ficha, posicion):
                 board.mover_ficha(torre, (posicion[0], 3))
             board.mover_ficha(ficha, posicion)
         return
-    else:
-        print("Movimiento no válido para la ficha seleccion: Enroque")
-        
     if posicion in ficha.movimientos_legales(board.tablero, board.tablero2):
         ficha_enemiga = buscar_ficha_general(posicion, board.fichas_oponentes(ficha.color,ficha.dimension))
         if ficha_enemiga:
@@ -487,3 +537,12 @@ def mover(ficha, posicion):
         print("Movimiento no válido para la ficha seleccionada.")
 def movimientos_posibles(ficha):
     print(ficha.movimientos_legales(board.tablero, board.tablero2))
+    
+def indicar_jaque():
+    for pieza in fichas:
+        if isinstance(pieza, Rey):
+            if pieza.jaque(board.tablero, board.tablero2):
+                print(f"El rey {pieza.color} está en jaque.")
+                return True
+    return False
+
