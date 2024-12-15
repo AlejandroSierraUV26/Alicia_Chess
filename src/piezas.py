@@ -1,4 +1,4 @@
-from src import tablero
+import tablero
 
 class Pieza:
     def __init__(self, tipo, color, posicion, dimension):
@@ -6,6 +6,7 @@ class Pieza:
         self.color = color  # Color: "Blanco" o "Negro"
         self.posicion = posicion  # Tupla (fila, columna)
         self.dimension = dimension # 1 izquierda 2 derecha
+        self.img = None
     
     def movimientos_legales(self, tablero_actual, tablero_opuesto):
         """
@@ -15,7 +16,7 @@ class Pieza:
         raise NotImplementedError
 class Peon(Pieza):
     def __init__(self, color, posicion, dimension):
-        super().__init__("Peón", color, posicion, dimension)
+        super().__init__("Peon", color, posicion, dimension)
     
     def movimientos_legales(self, tablero_actual, tablero_opuesto):
         movimientos = []
@@ -449,30 +450,29 @@ def inicializar_piezas():
     
     fichas = []
     # Crear piezas blancas
-    fichas.append(Torre("Blanco", (1, 0), 1))
-    # fichas.append(Caballo("Blanco", (0, 1), 1))
-    # fichas.append(Alfil("Blanco", (0, 2), 1))
-    # fichas.append(Reina("Blanco", (0, 3), 1))
+    fichas.append(Torre("Blanco", (0, 0), 1))
+    fichas.append(Caballo("Blanco", (0, 1), 1))
+    fichas.append(Alfil("Blanco", (0, 2), 1))
+    fichas.append(Reina("Blanco", (0, 3), 1))
     fichas.append(Rey("Blanco", (0, 4), 1))
-    # fichas.append(Alfil("Blanco", (0, 5), 1))
-    # fichas.append(Caballo("Blanco", (0, 6), 1))
-    #fichas.append(Torre("Blanco", (0, 7), 1))
-    # for _ in range(8):
-    #     fichas.append(Peon("Blanco", (1, _), 1))
+    fichas.append(Alfil("Blanco", (0, 5), 1))
+    fichas.append(Caballo("Blanco", (0, 6), 1))
+    fichas.append(Torre("Blanco", (0, 7), 1))
+    for _ in range(8):
+        fichas.append(Peon("Blanco", (1, _), 1))
     
         
     # Crear piezas negras
-    # fichas.append(Torre("Negro", (7,0), 1))   
-    # fichas.append(Caballo("Negro", (7,1), 1))
-    # fichas.append(Alfil("Negro", (7,2), 1))
-    fichas.append(Reina("Negro", (0,0), 1))
+    fichas.append(Torre("Negro", (7,0), 1))   
+    fichas.append(Caballo("Negro", (7,1), 1))
+    fichas.append(Alfil("Negro", (7,2), 1))
+    fichas.append(Reina("Negro", (7,3), 1))
     fichas.append(Rey("Negro", (7,4), 1))
-    # fichas.append(Alfil("Negro", (7,5), 1))
-    # fichas.append(Caballo("Negro", (7,6), 1))
-    # fichas.append(Torre("Negro", (0,7), 1))
-    fichas.append(Torre("Negro", (5,3), 1))   
-    # for _ in range(8):
-    #     fichas.append(Peon("Negro", (6, _), 1))
+    fichas.append(Alfil("Negro", (7,5), 1))
+    fichas.append(Caballo("Negro", (7,6), 1))
+    fichas.append(Torre("Negro", (7,7), 1))
+    for _ in range(8):
+        fichas.append(Peon("Negro", (6, _), 1))
 
     inicializar_tablero(fichas)
     
