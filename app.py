@@ -178,10 +178,12 @@ piezas.mover(torre1, (1,3))
 piezas.mover(alfil1, (2,3))
 piezas.mover(alfil1, (0,1))
 
-piezas.mover(torre3, (7,2))
 
-# piezas.mover(torre1, (1,2))
-piezas.mover(torre2,(1,7))
+piezas.mover(torre3, (7,2))
+piezas.mover(rey1, (0,2))
+piezas.mover(alfil1, (1,2))
+
+
 
 
 
