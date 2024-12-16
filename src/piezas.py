@@ -1,11 +1,12 @@
 from src import tablero
 
 class Pieza:
-    def __init__(self, tipo, color, posicion, dimension):
+    def __init__(self, tipo, color, posicion, dimension, valor):
         self.tipo = tipo  # Tipo de pieza: "Rey", "Reina", "Torre", etc.
         self.color = color  # Color: "Blanco" o "Negro"
         self.posicion = posicion  # Tupla (fila, columna)
         self.dimension = dimension # 1 izquierda 2 derecha
+        self.valor = valor
         self.img = None
     
     def movimientos_legales(self, tablero_actual, tablero_opuesto):
@@ -15,47 +16,46 @@ class Pieza:
         """
         raise NotImplementedError
 class Peon(Pieza):
-    def __init__(self, color, posicion, dimension):
-        super().__init__("Peon", color, posicion, dimension)
+    def __init__(self, color, posicion, dimension, valor):
+        super().__init__("Peon", color, posicion, dimension, valor)
     
     def movimientos_legales(self, tablero_actual, tablero_opuesto):
         movimientos = []
         fila, columna = self.posicion
         if self.color == "Blanco":
-            if self.dimension == 1:    
-                if fila + 1 < 8 and tablero_actual[fila + 1][columna] is None:
+            if self.dimension == 1:
+                if fila + 1 < 8 and tablero_actual[fila + 1][columna] is None and tablero_opuesto[fila + 1][columna] is None:
                     movimientos.append((fila + 1, columna))
-                    if fila == 1 and tablero_actual[fila + 2][columna] is None:
-                        movimientos.append((fila + 2, columna))
+                if fila == 1 and tablero_actual[fila + 2][columna] is None and tablero_opuesto[fila + 2][columna] is None:
+                    movimientos.append((fila + 2, columna))
                 if fila + 1 < 8 and columna + 1 < 8 and tablero_actual[fila + 1][columna + 1] is not None and tablero_actual[fila + 1][columna + 1].color != self.color:
-                    movimientos.append((fila + 1, columna + 1))        
+                    movimientos.append((fila + 1, columna + 1))
                 if fila + 1 < 8 and columna - 1 >= 0 and tablero_actual[fila + 1][columna - 1] is not None and tablero_actual[fila + 1][columna - 1].color != self.color:
-                    movimientos.append((fila + 1, columna - 1))    
-            else:        
-                if fila + 1 < 8 and tablero_opuesto[fila + 1][columna] is None:
+                    movimientos.append((fila + 1, columna - 1))
+            else:
+                if fila + 1 < 8 and tablero_opuesto[fila + 1][columna] is None and tablero_actual[fila + 1][columna] is None:
                     movimientos.append((fila + 1, columna))
-                    if fila == 1 and tablero_opuesto[fila + 2][columna] is None:
-                        movimientos.append((fila + 2, columna))    
+                if fila == 1 and tablero_opuesto[fila + 2][columna] is None and tablero_actual[fila + 2][columna] is None:
+                    movimientos.append((fila + 2, columna))
                 if fila + 1 < 8 and columna + 1 < 8 and tablero_opuesto[fila + 1][columna + 1] is not None and tablero_opuesto[fila + 1][columna + 1].color != self.color:
                     movimientos.append((fila + 1, columna + 1))
-        
                 if fila + 1 < 8 and columna - 1 >= 0 and tablero_opuesto[fila + 1][columna - 1] is not None and tablero_opuesto[fila + 1][columna - 1].color != self.color:
                     movimientos.append((fila + 1, columna - 1))
         else:
-            if self.dimension == 1:   
-                if fila - 1 >= 0 and tablero_actual[fila - 1][columna] is None:
+            if self.dimension == 1:
+                if fila - 1 >= 0 and tablero_actual[fila - 1][columna] is None and tablero_opuesto[fila - 1][columna] is None:
                     movimientos.append((fila - 1, columna))
-                    if fila == 6 and tablero_actual[fila - 2][columna] is None:
-                        movimientos.append((fila - 2, columna))
+                if fila == 6 and tablero_actual[fila - 2][columna] is None and tablero_opuesto[fila - 2][columna] is None:
+                    movimientos.append((fila - 2, columna))
                 if fila - 1 >= 0 and columna + 1 < 8 and tablero_actual[fila - 1][columna + 1] is not None and tablero_actual[fila - 1][columna + 1].color != self.color:
                     movimientos.append((fila - 1, columna + 1))
                 if fila - 1 >= 0 and columna - 1 >= 0 and tablero_actual[fila - 1][columna - 1] is not None and tablero_actual[fila - 1][columna - 1].color != self.color:
                     movimientos.append((fila - 1, columna - 1))
             else:
-                if fila - 1 >= 0 and tablero_opuesto[fila - 1][columna] is None:
+                if fila - 1 >= 0 and tablero_opuesto[fila - 1][columna] is None and tablero_actual[fila - 1][columna] is None:
                     movimientos.append((fila - 1, columna))
-                    if fila == 6 and tablero_opuesto[fila - 2][columna] is None:
-                        movimientos.append((fila - 2, columna))
+                if fila == 6 and tablero_opuesto[fila - 2][columna] is None and tablero_actual[fila - 2][columna] is None:
+                    movimientos.append((fila - 2, columna))
                 if fila - 1 >= 0 and columna + 1 < 8 and tablero_opuesto[fila - 1][columna + 1] is not None and tablero_opuesto[fila - 1][columna + 1].color != self.color:
                     movimientos.append((fila - 1, columna + 1))
                 if fila - 1 >= 0 and columna - 1 >= 0 and tablero_opuesto[fila - 1][columna - 1] is not None and tablero_opuesto[fila - 1][columna - 1].color != self.color:
@@ -68,8 +68,8 @@ class Peon(Pieza):
         # Verificar si el peón puede realizar el movimiento en passant
         pass    
 class Torre(Pieza):
-    def __init__(self, color, posicion, dimension):
-        super().__init__("Torre", color, posicion, dimension)
+    def __init__(self, color, posicion, dimension, valor):
+        super().__init__("Torre", color, posicion, dimension, valor)
     
     def movimientos_legales(self, tablero_actual, tablero_opuesto):
         movimientos = []
@@ -81,8 +81,8 @@ class Torre(Pieza):
                     movimientos.append((i, columna))
                 elif tablero_actual[i][columna].color != self.color:
                     movimientos.append((i, columna))
-                    if tablero_actual[i][columna].tipo == "Rey":
-                        continue
+                    # if tablero_actual[i][columna].tipo == "Rey":
+                    #     continue
                     break
                 else:
                     break
@@ -92,8 +92,8 @@ class Torre(Pieza):
                     movimientos.append((i, columna))
                 elif tablero_actual[i][columna].color != self.color:
                     movimientos.append((i, columna))
-                    if tablero_actual[i][columna].tipo == "Rey":
-                        continue
+                    # if tablero_actual[i][columna].tipo == "Rey":
+                    #     continue
                     break
                 else:
                     break
@@ -104,8 +104,8 @@ class Torre(Pieza):
                     movimientos.append((fila, i))
                 elif tablero_actual[fila][i].color != self.color:
                     movimientos.append((fila, i))
-                    if tablero_actual[fila][i].tipo == "Rey":
-                        continue
+                    # if tablero_actual[fila][i].tipo == "Rey":
+                    #     continue
                     
                     break
                 else:
@@ -116,8 +116,8 @@ class Torre(Pieza):
                     movimientos.append((fila, i))
                 elif tablero_actual[fila][i].color != self.color:
                     movimientos.append((fila, i))
-                    if tablero_actual[fila][i].tipo == "Rey":
-                        continue
+                    # if tablero_actual[fila][i].tipo == "Rey":
+                    #     continue
                     
                     break
                 else:
@@ -130,8 +130,8 @@ class Torre(Pieza):
                     movimientos.append((i, columna))
                 elif tablero_opuesto[i][columna].color != self.color:
                     movimientos.append((i, columna))
-                    if tablero_opuesto[i][columna].tipo == "Rey":
-                        continue
+                    # if tablero_opuesto[i][columna].tipo == "Rey":
+                    #     continue
                     break
                 else:
                     break
@@ -141,8 +141,8 @@ class Torre(Pieza):
                     movimientos.append((i, columna))
                 elif tablero_opuesto[i][columna].color != self.color:
                     movimientos.append((i, columna))
-                    if tablero_opuesto[i][columna].tipo == "Rey":
-                        continue
+                    # if tablero_opuesto[i][columna].tipo == "Rey":
+                    #     continue
                     break
                 else:
                     break
@@ -153,8 +153,8 @@ class Torre(Pieza):
                     movimientos.append((fila, i))
                 elif tablero_opuesto[fila][i].color != self.color:
                     movimientos.append((fila, i))
-                    if tablero_opuesto[fila][i].tipo == "Rey":
-                        continue
+                    # if tablero_opuesto[fila][i].tipo == "Rey":
+                    #     continue
                     break
                 else:
                     break
@@ -164,16 +164,16 @@ class Torre(Pieza):
                     movimientos.append((fila, i))
                 elif tablero_opuesto[fila][i].color != self.color:
                     movimientos.append((fila, i))
-                    if tablero_opuesto[fila][i].tipo == "Rey":
-                        continue
+                    # if tablero_opuesto[fila][i].tipo == "Rey":
+                    #     continue
                     break
                 else:
                     break
                 
         return movimientos
 class Caballo(Pieza):
-    def __init__(self, color, posicion, dimension):
-        super().__init__("Caballo", color, posicion, dimension)
+    def __init__(self, color, posicion, dimension, valor):
+        super().__init__("Caballo", color, posicion, dimension, valor)
     
     def movimientos_legales(self, tablero_actual, tablero_opuesto):
         movimientos = []
@@ -198,8 +198,8 @@ class Caballo(Pieza):
                         movimientos.append(mov)
         return movimientos
 class Alfil(Pieza):
-    def __init__(self, color, posicion, dimension):
-        super().__init__("Alfil", color, posicion, dimension)
+    def __init__(self, color, posicion, dimension, valor):
+        super().__init__("Alfil", color, posicion, dimension, valor)
     
     def movimientos_legales(self, tablero_actual, tablero_opuesto):
         movimientos = []
@@ -221,8 +221,8 @@ class Alfil(Pieza):
                         movimientos.append((nueva_fila, nueva_columna))
                     elif pieza.color != self.color:  # Celda ocupada por una pieza enemiga
                         movimientos.append((nueva_fila, nueva_columna))
-                        if pieza.tipo == "Rey":
-                            continue
+                        # if pieza.tipo == "Rey":
+                        #     continue
                         break  # El alfil no puede continuar después de capturar
                     else:  # Celda ocupada por una pieza aliada
                         break  # No puede continuar por piezas aliadas
@@ -231,8 +231,8 @@ class Alfil(Pieza):
 
         return movimientos
 class Rey(Pieza):
-    def __init__(self, color, posicion, dimension):
-        super().__init__("Rey", color, posicion, dimension)
+    def __init__(self, color, posicion, dimension, valor):
+        super().__init__("Rey", color, posicion, dimension, valor)
     
     def movimientos_legales(self, tablero_actual, tablero_opuesto):
         movimientos = []
@@ -318,14 +318,10 @@ class Rey(Pieza):
     
     def ahogado(self):
         # Verificar si el rey está ahogado
-        pass
-        pass
-    
-    
-        pass    
+        pass  
 class Reina(Pieza):
-    def __init__(self, color, posicion, dimension):
-        super().__init__("Dama", color, posicion, dimension)
+    def __init__(self, color, posicion, dimension, valor):
+        super().__init__("Dama", color, posicion, dimension, valor)
     
     def movimientos_legales(self, tablero_actual, tablero_opuesto):
         movimientos = []
@@ -343,8 +339,8 @@ class Reina(Pieza):
                 movimientos.append((i, columna))
             elif tablero[i][columna].color != self.color:
                 movimientos.append((i, columna))
-                if tablero[i][columna].tipo == "Rey":
-                    continue
+                # if tablero[i][columna].tipo == "Rey":
+                #     continue
                 break
             else:
                 break
@@ -354,8 +350,8 @@ class Reina(Pieza):
                 movimientos.append((i, columna))
             elif tablero[i][columna].color != self.color:
                 movimientos.append((i, columna))
-                if tablero[i][columna].tipo == "Rey":
-                    continue
+                # if tablero[i][columna].tipo == "Rey":
+                #     continue
                 break
             else:
                 break
@@ -365,8 +361,8 @@ class Reina(Pieza):
                 movimientos.append((fila, i))
             elif tablero[fila][i].color != self.color:
                 movimientos.append((fila, i))
-                if tablero[fila][i].tipo == "Rey":
-                    continue
+                # if tablero[fila][i].tipo == "Rey":
+                #     continue
                 break
             else:
                 break
@@ -376,8 +372,8 @@ class Reina(Pieza):
                 movimientos.append((fila, i))
             elif tablero[fila][i].color != self.color:
                 movimientos.append((fila, i))
-                if tablero[fila][i].tipo == "Rey":
-                    continue
+                # if tablero[fila][i].tipo == "Rey":
+                #     continue
                 break
             else:
                 break
@@ -389,8 +385,8 @@ class Reina(Pieza):
                     movimientos.append((fila + i, columna + i))
                 elif tablero[fila + i][columna + i].color != self.color:
                     movimientos.append((fila + i, columna + i))
-                    if tablero[fila + i][columna + i].tipo == "Rey":
-                        continue
+                    # if tablero[fila + i][columna + i].tipo == "Rey":
+                    #     continue
                     break
                 else:
                     break
@@ -403,8 +399,8 @@ class Reina(Pieza):
                     movimientos.append((fila + i, columna - i))
                 elif tablero[fila + i][columna - i].color != self.color:
                     movimientos.append((fila + i, columna - i))
-                    if tablero[fila + i][columna - i].tipo == "Rey":
-                        continue
+                    # if tablero[fila + i][columna - i].tipo == "Rey":
+                    #     continue
                     break
                 else:
                     break
@@ -417,8 +413,8 @@ class Reina(Pieza):
                     movimientos.append((fila - i, columna + i))
                 elif tablero[fila - i][columna + i].color != self.color:
                     movimientos.append((fila - i, columna + i))
-                    if tablero[fila - i][columna + i].tipo == "Rey":
-                        continue
+                    # if tablero[fila - i][columna + i].tipo == "Rey":
+                    #     continue
                     break
                 else:
                     break
@@ -431,8 +427,8 @@ class Reina(Pieza):
                     movimientos.append((fila - i, columna - i))
                 elif tablero[fila - i][columna - i].color != self.color:
                     movimientos.append((fila - i, columna - i))
-                    if tablero[fila - i][columna - i].tipo == "Rey":
-                        continue
+                    # if tablero[fila - i][columna - i].tipo == "Rey":
+                    #     continue
                     break
                 else:
                     break
@@ -449,29 +445,29 @@ def inicializar_piezas():
     
     fichas = []
     # Crear piezas blancas
-    fichas.append(Torre("Blanco", (0, 0), 1))
-    fichas.append(Caballo("Blanco", (0, 1), 1))
-    fichas.append(Alfil("Blanco", (0, 2), 1))
-    fichas.append(Reina("Blanco", (0, 3), 1))
-    fichas.append(Rey("Blanco", (0, 4), 1))
-    fichas.append(Alfil("Blanco", (0, 5), 1))
-    fichas.append(Caballo("Blanco", (0, 6), 1))
-    fichas.append(Torre("Blanco", (0, 7), 1))
+    fichas.append(Torre("Blanco", (0, 0), 1, 5))
+    fichas.append(Caballo("Blanco", (0, 1), 1, 3))
+    fichas.append(Alfil("Blanco", (0, 2), 1, 3))
+    fichas.append(Reina("Blanco", (0, 3), 1, 9))
+    fichas.append(Rey("Blanco", (0, 4), 1, 100))
+    fichas.append(Alfil("Blanco", (0, 5), 1, 3))
+    fichas.append(Caballo("Blanco", (0, 6), 1, 3))
+    fichas.append(Torre("Blanco", (0, 7), 1, 5))
     for _ in range(8):
-        fichas.append(Peon("Blanco", (1, _), 1))
+        fichas.append(Peon("Blanco", (1, _), 1, 1))
     
         
     # Crear piezas negras
-    fichas.append(Torre("Negro", (7,0), 1))   
-    fichas.append(Caballo("Negro", (7,1), 1))
-    fichas.append(Alfil("Negro", (7,2), 1))
-    fichas.append(Reina("Negro", (7,3), 1))
-    fichas.append(Rey("Negro", (7,4), 1))
-    fichas.append(Alfil("Negro", (7,5), 1))
-    fichas.append(Caballo("Negro", (7,6), 1))
-    fichas.append(Torre("Negro", (7,7), 2))
+    fichas.append(Torre("Negro", (7,0), 1, 5))   
+    fichas.append(Caballo("Negro", (7,1), 1, 3))
+    fichas.append(Alfil("Negro", (7,2), 1, 3))
+    fichas.append(Reina("Negro", (7,3), 1, 9))
+    fichas.append(Rey("Negro", (7,4), 1, 100))
+    fichas.append(Alfil("Negro", (7,5), 1, 3))
+    fichas.append(Caballo("Negro", (7,6), 1, 3))
+    fichas.append(Torre("Negro", (7,7), 1, 5))
     for _ in range(8):
-        fichas.append(Peon("Negro", (6, _), 1))
+        fichas.append(Peon("Negro", (6, _), 1, 1))
 
     inicializar_tablero(fichas)
     
@@ -499,6 +495,8 @@ def buscar_ficha_general(posicion, piezas):
     return None
 
 def mover(ficha, posicion, simular=False):
+    if board.tablero[posicion[0]][posicion[1]] is not None and board.tablero2[posicion[0]][posicion[1]] is not None:
+        return False
     rey = next((pieza for pieza in fichas if isinstance(pieza, Rey) and pieza.color == ficha.color), None)
 
     if ficha.color != rey.color:
@@ -535,6 +533,7 @@ def mover(ficha, posicion, simular=False):
                 fichas_defensivas.extend(pieza.movimientos_legales(tablero, board.tablero2))
 
         diferencia_simetrica = set(fichas_defensivas).difference(movimientos_para_defender).intersection(rey.movimientos_legales(tablero, board.tablero2))
+        print(diferencia_simetrica)
         if movimientos_para_defender == fichas_defensivas:
             print("No se puede defender")
             return False
@@ -610,3 +609,14 @@ def finalizar_juego():
     if len(reyes) < 2:
         return True
     return False
+
+
+def obtener_ficha_jaque():
+    rey = next((pieza for pieza in fichas if isinstance(pieza, Rey)), None)
+    fichas_jaque = []
+    for pieza in fichas:
+        if pieza.color != rey.color:
+            movimientos_enemigos = pieza.movimientos_legales(board.tablero, board.tablero2)
+            if rey.posicion in movimientos_enemigos:
+                fichas_jaque.append(pieza)
+    return fichas_jaque
