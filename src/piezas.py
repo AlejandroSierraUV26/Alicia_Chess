@@ -1,4 +1,4 @@
-from src import tablero
+import tablero
 
 class Pieza:
     def __init__(self, tipo, color, posicion, dimension, valor):
