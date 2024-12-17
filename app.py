@@ -3,6 +3,7 @@ import os
 from src import piezas
 import random
 import time
+import pygame
 
 
 piezas.inicializar_piezas()
@@ -11,17 +12,77 @@ fichas_blancas = [ item for sublist in piezas.board.tablero for item in sublist 
 fichas_blancas.extend(item for sublist in piezas.board.tablero2 for item in sublist if item and item.color == "Blanco")
 fichas_negras = [ item for sublist in piezas.board.tablero2 for item in sublist if item and item.color  == "Negro"]
 fichas_negras.extend(item for sublist in piezas.board.tablero for item in sublist if item and item.color == "Negro")
-tabla_costos = [
-    [ 50,  30,  30,  30,  30,  30,  30,  50],
-    [ 30,  20,  20,  20,  20,  20,  20,  30],
-    [ 30,  20,  10,  10,  10,  10,  20,  30],
-    [ 30,  20,  10,   0,   0,  10,  20,  30],
-    [ 30,  20,  10,   0,   0,  10,  20,  30],
-    [ 30,  20,  10,  10,  10,  10,  20,  30],
-    [ 30,  20,  20,  20,  20,  20,  20,  30],
-    [ 50,  30,  30,  30,  30,  30,  30,  50]
+tabla_costo_peon = [
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+    [0.3, 0.3, 0.35, 0.45, 0.45, 0.35, 0.3, 0.3],
+    [ 0.5, 0.5, 1, 2.5, 2.5, 1, 0.5, 0.5],
+    [0.15, 0.15, 0.15, 0.27, 0.27, 0.15, 0.15, 0.15],
+    [ 0.5, -0.5, -1, 0, 0, -1, -0.5, 0.5],
+    [0.05, 0.1, 0.1, -0.25, -0.25, 0.1, 0.1, 0.05],
+    [ 0, 0, 0, 0, 0, 0, 0, 0]
+]
+tabla_costo_caballo = [
+    [-0.5, -0.4, -0.3, -0.3, -0.3, -0.3, -0.4, -0.5],
+    [-0.4, -0.2,  0,    0,    0,    0,  -0.2, -0.4],
+    [-0.3,  0,    0.1,  0.15, 0.15, 0.1,  0,  -0.3],
+    [-0.3,  0.05, 0.15, 0.2,  0.2,  0.15, 0.05, -0.3],
+    [-0.3,  0,    0.15, 0.2,  0.2,  0.15, 0,  -0.3],
+    [-0.3,  0.05, 0.1,  0.15, 0.15, 0.1,  0.05, -0.3],
+    [-0.4, -0.2,  0,    0.05, 0.05, 0,   -0.2, -0.4],
+    [-0.5, -0.4, -0.2, -0.3, -0.3, -0.2, -0.4, -0.5]
+]
+tabla_costo_alfil = [
+    [-0.4, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.4],
+    [-0.2,  0.1,  0.1,  0.1,  0.1,  0.1,  0.1, -0.2],
+    [-0.2,  0.1,  0.2,  0.3,  0.3,  0.2,  0.1, -0.2],
+    [-0.2,  0.2,  0.2,  0.3,  0.3,  0.2,  0.2, -0.2],
+    [-0.2,  0.1,  0.3,  0.3,  0.3,  0.3,  0.1, -0.2],
+    [-0.2,  0.3,  0.3,  0.3,  0.3,  0.3,  0.3, -0.2],
+    [-0.2,  0.2,  0.1,  0.1,  0.1,  0.1,  0.2, -0.2],
+    [-0.4, -0.2, -0.6, -0.2, -0.2, -0.6, -0.2, -0.4]
 ]
 
+tabla_costo_torre = [
+    [-0.5, -0.4, -0.3, -0.2, -0.2, -0.3, -0.4, -0.5],
+    [-0.4, -0.4, -0.25, 0, 0, -0.25, -0.4, -0.4],
+    [-0.3, -0.25, 0, 0.25, 0.25, 0, -0.25, -0.3],
+    [-0.2, 0, 0.25, 0.5, 0.5, 0.25, 0, -0.2],
+    [-0.2, 0, 0.25, 0.5, 0.5, 0.25, 0, -0.2],
+    [-0.3, -0.25, 0, 0.25, 0.25, 0, -0.25, -0.3],
+    [-0.4, -0.4, -0.25, 0, 0, -0.25, -0.4, -0.4],
+    [-0.5, -0.4, -0.3, 0, 0, -0.3, -0.4, -0.5]
+]
+
+tabla_costo_reina = [
+    [-0.8, -0.5, -0.5, -0.25, -0.25, -0.5, -0.5, -0.8],
+    [-0.5,  0,    0,    0,     0,     0,    0,   -0.5],
+    [-0.5,  0,    0.25, 0.5,   0.5,   0.25, 0,   -0.5],
+    [-0.25, 0,    0.25, 0.5,   0.5,   0.25, 0,   -0.25],
+    [ 0,    0,    0.25, 0.5,   0.5,   0.25, 0,   -0.25],
+    [-0.5,  0.25, 0.25, 0.5,   0.5,   0.25, 0,   -0.5],
+    [-0.5,  0,    0.25, 0,     0,     0,    0,   -0.5],
+    [-0.8, -0.5, -0.5, -0.25, -0.25, -0.5, -0.5, -0.8]
+]
+
+tabla_costo_rey = [
+    [-0.3, -0.4, -0.4, -0.5, -0.5, -0.4, -0.4, -0.3],
+    [-0.3, -0.4, -0.4, -0.5, -0.5, -0.4, -0.4, -0.3],
+    [-0.3, -0.4, -0.4, -0.5, -0.5, -0.4, -0.4, -0.3],
+    [-0.3, -0.4, -0.4, -0.5, -0.5, -0.4, -0.4, -0.3],
+    [-0.2, -0.3, -0.3, -0.4, -0.4, -0.3, -0.3, -0.2],
+    [-0.1, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.1],
+    [ 0.2,  0.2,  0,    0,    0,    0,    0.2,  0.2],
+    [ 0.2,  0.3,  0.1,  0,    0,    0.1,  0.3,  0.2]
+]
+tabla_costos = [
+    tabla_costo_peon,
+    tabla_costo_caballo,
+    tabla_costo_alfil,
+    tabla_costo_torre,
+    tabla_costo_reina,
+    tabla_costo_rey
+]
 def lista_movimientos_posibles(ficha):
     movimientos = ficha.movimientos_legales(piezas.board.tablero,piezas.board.tablero2)
     elems = []
@@ -47,7 +108,20 @@ def evaluar_tablero():
         for pieza in fila:
             if pieza:
                 base_valor = pieza.valor
-                control_centro = tabla_costos[pieza.posicion[0]][pieza.posicion[1]]
+                if pieza.tipo == "Peon":
+                    control_centro = tabla_costo_peon[pieza.posicion[0]][pieza.posicion[1]]
+                elif pieza.tipo == "Caballo":
+                    control_centro = tabla_costo_caballo[pieza.posicion[0]][pieza.posicion[1]]
+                elif pieza.tipo == "Alfil":
+                    control_centro = tabla_costo_alfil[pieza.posicion[0]][pieza.posicion[1]]
+                elif pieza.tipo == "Torre":
+                    control_centro = tabla_costo_torre[pieza.posicion[0]][pieza.posicion[1]]
+                elif pieza.tipo == "Reina":
+                    control_centro = tabla_costo_reina[pieza.posicion[0]][pieza.posicion[1]]
+                elif pieza.tipo == "Rey":
+                    control_centro = tabla_costo_rey[pieza.posicion[0]][pieza.posicion[1]]
+                else:
+                    control_centro = 0
                 movilidad = len(pieza.movimientos_legales(piezas.board.tablero, piezas.board.tablero2))
                 if pieza.color == "Blanco":
                     valor -= base_valor + control_centro + movilidad
@@ -96,7 +170,7 @@ def mejor_movimiento():
         for mov in movimientos:
             tablero_copia = piezas.board.copia_tablero()
             piezas.mover(ficha, mov, simular=True)
-            valor = minimax(tablero_copia, 2, -float('inf'), float('inf'), True)
+            valor = minimax(tablero_copia, 3, -float('inf'), float('inf'), True)
             if valor < mejor_valor:
                 mejor_valor = valor
                 mejor_movimientos = [(ficha, mov)]
@@ -112,9 +186,24 @@ def filtrar_movimientos_prometedores(ficha, movimientos, maximo=5):
     Ordena los movimientos por prioridad y selecciona los más prometedores.
     Por ejemplo, prioriza capturas o movimientos hacia el centro.
     """
+    if ficha.tipo == "Peon":
+        tabla_costo = tabla_costo_peon
+    elif ficha.tipo == "Caballo":
+        tabla_costo = tabla_costo_caballo
+    elif ficha.tipo == "Alfil":
+        tabla_costo = tabla_costo_alfil
+    elif ficha.tipo == "Torre":
+        tabla_costo = tabla_costo_torre
+    elif ficha.tipo == "Reina":
+        tabla_costo = tabla_costo_reina
+    elif ficha.tipo == "Rey":
+        tabla_costo = tabla_costo_rey
+    else:
+        tabla_costo = [[0]*8 for _ in range(8)]  # Default to a neutral table if type is unknown
+
     movimientos_ordenados = sorted(
         movimientos, 
-        key=lambda mov: tabla_costos[mov[0]][mov[1]], 
+        key=lambda mov: tabla_costo[mov[0]][mov[1]], 
         reverse=True
     )
     return movimientos_ordenados[:maximo]  # Considera solo los 5 mejores movimientos
@@ -140,37 +229,51 @@ while not piezas.finalizar_juego():
     os.system("cls")
     piezas.mostrar_tablero()
     if turno_blanco:
-        while True:
-            if piezas.indicar_jaque():
-                time.sleep(1)
-            try:
-                posicion = input("Introduce la posición de la ficha que quieres mover (ej. '12'): ")
-                fila, columna = int(posicion[0]), int(posicion[1])
-            except Exception as e:
-                print("Error: Introduce una posición válida.")
-                continue
-            posicion = (fila, columna)
-            ficha = seleccionar_ficha(posicion, fichas_blancas)
-            if ficha:
-                movimientos = lista_movimientos_posibles(ficha)
-                if movimientos:
-                    print("Movimientos posibles: ", [mov[3] for mov in movimientos])
-                    try:
-                        nueva_posicion = input("Introduce la nueva posición (ej. '12'): ")
-                        fila, columna = int(nueva_posicion[0]), int(nueva_posicion[1])
-                    except Exception as e:
-                        print("Error: Introduce una posición válida.")
-                        continue
-                    nueva_posicion = (fila, columna)
-                    if mover_ficha(ficha, nueva_posicion):
-                        print(f"Ficha movida a {nueva_posicion}")
-                        break
-                    else:
-                        print("Movimiento no válido.")
-                else:
-                    print("No hay movimientos posibles para esta ficha.")
-            else:
-                print("Ficha no encontrada.")
+        # Turno del jugador blanco (movimiento aleatorio)
+        movimientos_posibles = []
+        for ficha in fichas_blancas:
+            movimientos = ficha.movimientos_legales(piezas.board.tablero, piezas.board.tablero2)
+            for mov in movimientos:
+                movimientos_posibles.append((ficha, mov))
+        
+        if movimientos_posibles:
+            while True:
+                ficha, mov = random.choice(movimientos_posibles)
+                if mover_ficha(ficha, mov):
+                    print(f"Jugador blanco movió {ficha.tipo} a {mov}")
+                    break
+                
+        # while True:
+        #     if piezas.indicar_jaque():
+        #         time.sleep(1)
+        #     try:
+        #         posicion = input("Introduce la posición de la ficha que quieres mover (ej. '12'): ")
+        #         fila, columna = int(posicion[0]), int(posicion[1])
+        #     except Exception as e:
+        #         print("Error: Introduce una posición válida.")
+        #         continue
+        #     posicion = (fila, columna)
+        #     ficha = seleccionar_ficha(posicion, fichas_blancas)
+        #     if ficha:
+        #         movimientos = lista_movimientos_posibles(ficha)
+        #         if movimientos:
+        #             print("Movimientos posibles: ", [mov[3] for mov in movimientos])
+        #             try:
+        #                 nueva_posicion = input("Introduce la nueva posición (ej. '12'): ")
+        #                 fila, columna = int(nueva_posicion[0]), int(nueva_posicion[1])
+        #             except Exception as e:
+        #                 print("Error: Introduce una posición válida.")
+        #                 continue
+        #             nueva_posicion = (fila, columna)
+        #             if mover_ficha(ficha, nueva_posicion):
+        #                 print(f"Ficha movida a {nueva_posicion}")
+        #                 break
+        #             else:
+        #                 print("Movimiento no válido.")
+        #         else:
+        #             print("No hay movimientos posibles para esta ficha.")
+        #     else:
+        #         print("Ficha no encontrada.")
     else:
         # Turno de la máquina
         if turno_actual < TURNOS_SEMIALEATORIOS:
@@ -189,8 +292,31 @@ while not piezas.finalizar_juego():
     
     turno_actual += 1
     turno_blanco = not turno_blanco
-    time.sleep(4)
 print("Juego terminado.")
+# Inicializar pygame mixer
+pygame.mixer.init()
+
+# Verificar si la inicialización fue exitosa
+if not pygame.mixer.get_init():
+    print("Error al inicializar el mixer de Pygame")
+else:
+    # Cargar el archivo mp3
+    try:
+        pygame.mixer.music.load(fr"src\audio\sonido.mp3")
+    except pygame.error as e:
+        print(f"Error al cargar el archivo de sonido: {e}")
+    else:
+        # Establecer el volumen (opcional)
+        pygame.mixer.music.set_volume(1.0)  # Volumen máximo
+
+        # Reproducir el archivo mp3
+        pygame.mixer.music.play()
+
+        # Mantener el programa en ejecución para escuchar el sonido
+        while pygame.mixer.music.get_busy():
+            pygame.time.Clock().tick(10)
+
+
 print(f"Fichas restantes: ")
 
 a = 0

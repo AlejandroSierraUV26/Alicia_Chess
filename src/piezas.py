@@ -495,95 +495,60 @@ def buscar_ficha_general(posicion, piezas):
     return None
 
 def mover(ficha, posicion, simular=False):
-    if board.tablero[posicion[0]][posicion[1]] is not None and board.tablero2[posicion[0]][posicion[1]] is not None:
-        return False
+
     rey = next((pieza for pieza in fichas if isinstance(pieza, Rey) and pieza.color == ficha.color), None)
-
-    if ficha.color != rey.color:
-        if posicion in ficha.movimientos_legales(board.tablero, board.tablero2):
-            if simular:
-                return True
-            ficha_enemiga = buscar_ficha_general(posicion, board.fichas_oponentes(ficha.color, ficha.dimension))
-            if ficha_enemiga:
-                board.eliminar_ficha(ficha_enemiga, posicion)
-                print("Eliminado : {}".format(ficha_enemiga.tipo, ficha_enemiga.posicion, ficha_enemiga.color))
-                if ficha_enemiga in fichas:
-                    fichas.remove(ficha_enemiga)
-            board.mover_ficha(ficha, posicion)
-            return True
-        else:
-            return False
-
+    
+    
     if rey and rey.jaque(board.tablero, board.tablero2):
-        movimientos_defensivos = []
-        fichas_defensivas = []
-
-        if rey.dimension == 1:
-            tablero = board.tablero
-        else:
-            tablero = board.tablero2
-
-        movimientos_para_defender = []
-        fichas_defensivas = []
-
-        for pieza in fichas:
-            if pieza.color != rey.color:
-                movimientos_para_defender.extend(pieza.movimientos_legales(tablero, board.tablero2))
-            else:
-                fichas_defensivas.extend(pieza.movimientos_legales(tablero, board.tablero2))
-
-        diferencia_simetrica = set(fichas_defensivas).difference(movimientos_para_defender).intersection(rey.movimientos_legales(tablero, board.tablero2))
-        print(diferencia_simetrica)
-        if movimientos_para_defender == fichas_defensivas:
-            print("No se puede defender")
+        print(f"Rey {rey.color} en jaque")
+        movimientos_legales = ficha.movimientos_legales(board.tablero, board.tablero2)
+        movimientos_validos = []
+        for mov in movimientos_legales:
+            # Simular el movimiento
+            posicion_original = ficha.posicion
+            ficha.posicion = mov
+            if isinstance(ficha, Rey):
+                rey.posicion = mov
+            if not rey.jaque(board.tablero, board.tablero2):
+                movimientos_validos.append(mov)
+            # Revertir el movimiento
+            ficha.posicion = posicion_original
+            if isinstance(ficha, Rey):
+                rey.posicion = posicion_original
+        if posicion not in movimientos_validos:
             return False
-        if ficha.color == rey.color:
-            if ficha.tipo == "Rey":
-                if posicion in diferencia_simetrica:
-                    if simular:
-                        return True
-                    board.mover_ficha(ficha, posicion)
-                    return True
-                else:
-                    return False
-            else:
-                if posicion in diferencia_simetrica:
-                    if simular:
-                        return True
-                    board.mover_ficha(ficha, posicion)
-                    return True
-                else:
-                    return False
 
-    if not rey.jaque(board.tablero, board.tablero2):
-        if isinstance(ficha, Rey):
-            enroque_movimientos = ficha.enroque(board.tablero, board.tablero2)
-            if posicion in enroque_movimientos:
-                if simular:
-                    return True
-                if posicion[1] == 6:
-                    torre = buscar_ficha((posicion[0], 7))
-                    board.mover_ficha(torre, (posicion[0], 5))
-                elif posicion[1] == 2:
-                    torre = buscar_ficha((posicion[0], 0))
-                    board.mover_ficha(torre, (posicion[0], 3))
-                board.mover_ficha(ficha, posicion)
-                return True
-        if posicion in ficha.movimientos_legales(board.tablero, board.tablero2):
+    
+    if (board.tablero[posicion[0]][posicion[1]] is not None and board.tablero[posicion[0]][posicion[1]].color == ficha.color) or (board.tablero2[posicion[0]][posicion[1]] is not None and board.tablero2[posicion[0]][posicion[1]].color == ficha.color):
+        return False
+    if isinstance(ficha, Rey):
+        enroque_movimientos = ficha.enroque(board.tablero, board.tablero2)
+        if posicion in enroque_movimientos:
             if simular:
                 return True
-            ficha_enemiga = buscar_ficha_general(posicion, board.fichas_oponentes(ficha.color, ficha.dimension))
-            if ficha_enemiga:
-                board.eliminar_ficha(ficha_enemiga, posicion)
-                print(f"Eliminado : {ficha_enemiga.tipo} {ficha_enemiga.posicion} {ficha_enemiga.color}")
-                if ficha_enemiga in fichas:
-                    fichas.remove(ficha_enemiga)
+            if posicion[1] == 6:
+                torre = buscar_ficha((posicion[0], 7))
+                board.mover_ficha(torre, (posicion[0], 5))
+            elif posicion[1] == 2:
+                torre = buscar_ficha((posicion[0], 0))
+                board.mover_ficha(torre, (posicion[0], 3))
             board.mover_ficha(ficha, posicion)
             return True
-        else:
-            return False
+    if posicion in ficha.movimientos_legales(board.tablero, board.tablero2):
+        if simular:
+            return True
+        ficha_enemiga = buscar_ficha_general(posicion, board.fichas_oponentes(ficha.color, ficha.dimension))
+        if ficha_enemiga:
+            board.eliminar_ficha(ficha_enemiga, posicion)
+            print(f"Eliminado : {ficha_enemiga.tipo} {ficha_enemiga.posicion} {ficha_enemiga.color}")
+            if ficha_enemiga in fichas:
+                fichas.remove(ficha_enemiga)
+        board.mover_ficha(ficha, posicion)
+        return True
     else:
         return False
+    
+    
 def movimientos_posibles(ficha):
     print(ficha.movimientos_legales(board.tablero, board.tablero2))
     

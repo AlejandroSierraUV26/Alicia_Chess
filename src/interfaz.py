@@ -149,6 +149,28 @@ def detectar_seleccion(mouse_pos, inicio_x, inicio_y):
     if 0 <= col < 8 and 0 <= row < 8:
         return col, row
     return None
+
+def detectar_seleccion_teclado(seleccion_actual, keys):
+    """
+    Detecta el movimiento de la selección actual usando las teclas de flecha.
+    """
+    if seleccion_actual:
+        col, row = seleccion_actual
+        if keys[pygame.K_LEFT]:
+            col = max(0, col - 1)
+        if keys[pygame.K_RIGHT]:
+            col = min(7, col + 1)
+            pygame.time.wait(100)  # Añadir un pequeño retraso
+        if keys[pygame.K_UP]:
+            row = max(0, row - 1)
+            pygame.time.wait(100)  # Añadir un pequeño retraso
+        if keys[pygame.K_DOWN]:
+            row = min(7, row + 1)
+            pygame.time.wait(100)  # Añadir un pequeño retraso
+        if keys[pygame.K_RETURN]:
+            return "selected"
+        return col, row
+    return None
 def poner_ficha(ventana, row, col , inicio_x, inicio_y, img):
     """
     Dibuja una ficha en la posición especificada.
@@ -341,7 +363,11 @@ while not piezas.finalizar_juego() and ejecutando:
         mouse_pos = pygame.mouse.get_pos()
         mouse_click = pygame.mouse.get_pressed()
         keys = pygame.key.get_pressed()
-
+        if mouse_click[0] or any(keys):  # Si se hace clic con el botón izquierdo o se presiona una tecla
+            # Que tenga un delay para que no se mueva tan rápido
+            pygame.time.wait(100)
+            
+        
         if mouse_click[0] or any(keys):  # Si se hace clic con el botón izquierdo o se presiona una tecla
             # Verificar selección en el tablero izquierdo
             seleccion = detectar_seleccion(mouse_pos, inicio_x_tablero_izquierdo, MARGEN_SUPERIOR)
@@ -360,7 +386,7 @@ while not piezas.finalizar_juego() and ejecutando:
                                     if ficha:
                                         if ficha.dimension == 1 and ficha.posicion == (seleccion[1], seleccion[0]):
                                             ficha_seleccionada = ficha        
-
+    
             # Verificar selección en el tablero derecho
             seleccion = detectar_seleccion(mouse_pos, inicio_x_tablero_derecho, MARGEN_SUPERIOR)
             if seleccion:
@@ -378,8 +404,9 @@ while not piezas.finalizar_juego() and ejecutando:
                                     if ficha.dimension == 2 and ficha.posicion == (seleccion[1], seleccion[0]):
                                         ficha_seleccionada = ficha
                                         break   
-                            
-
+        # Detectar movimiento de selección con teclado
+        seleccion_izquierda = detectar_seleccion_teclado(seleccion_izquierda, keys)
+        seleccion_derecha = detectar_seleccion_teclado(seleccion_derecha, keys)
         # Dibujar siempre las selecciones actuales si existen
         if seleccion_izquierda:
             col, row = seleccion_izquierda
