@@ -231,8 +231,9 @@ class Alfil(Pieza):
 
         return movimientos
 class Rey(Pieza):
-    def __init__(self, color, posicion, dimension, valor):
+    def __init__(self, color, posicion, dimension, valor, camino_jaque =  []):
         super().__init__("Rey", color, posicion, dimension, valor)
+        self.camino_jaque = camino_jaque
     
     def movimientos_legales(self, tablero_actual, tablero_opuesto):
         movimientos = []
@@ -305,13 +306,50 @@ class Rey(Pieza):
                             if tablero_opuesto[7][1] is None and tablero_opuesto[7][2] is None and tablero_opuesto[7][3] is None:
                                 movimientos.append((7, 2))
         return movimientos
+    def direcciones(self):
+        direcciones = {
+            "vertical": [(1, 0), (-1, 0)],
+            "horizontal": [(0, 1), (0, -1)],
+            "diagonales": [(1, 1), (1, -1), (-1, 1), (-1, -1)]
+        }
+        casillas = set({})
+        fila, columna = self.posicion
+        for dx, dy in direcciones["vertical"]:
+            for i in range(1, 8):
+                nueva_fila = fila + i * dx
+                nueva_columna = columna + i * dy
+                if 0 <= nueva_fila < 8 and 0 <= nueva_columna < 8:
+                    casillas.add((nueva_fila, nueva_columna))
+                else:
+                    break
+        for dx, dy in direcciones["horizontal"]:
+            for i in range(1, 8):
+                nueva_fila = fila + i * dx
+                nueva_columna = columna + i * dy
+                if 0 <= nueva_fila < 8 and 0 <= nueva_columna < 8:
+                    casillas.add((nueva_fila, nueva_columna))
+                else:
+                    break
+                
+        for dx, dy in direcciones["diagonales"]:
+            for i in range(1, 8):
+                nueva_fila = fila + i * dx
+                nueva_columna = columna + i * dy
+                if 0 <= nueva_fila < 8 and 0 <= nueva_columna < 8:
+                    casillas.add((nueva_fila, nueva_columna))
+                else:
+                    break
+        return casillas
     
+        
     def jaque(self, tablero_actual, tablero_opuesto):
         # Sacar todas las casillas que ocupan los enemigos
         for pieza in fichas:
-            if pieza.color != self.color:
+            if pieza.color != self.color and pieza.dimension == self.dimension:
                 movimientos_enemigos = pieza.movimientos_legales(tablero_actual, tablero_opuesto)
+                
                 if self.posicion in movimientos_enemigos:
+                    self.camino_jaque = set(movimientos_enemigos).intersection(self.direcciones())
                     return True
     def jaque_mate(self, tablero_actual, tablero_opuesto):
         return True
@@ -339,8 +377,10 @@ class Reina(Pieza):
                 movimientos.append((i, columna))
             elif tablero[i][columna].color != self.color:
                 movimientos.append((i, columna))
-                # if tablero[i][columna].tipo == "Rey":
-                #     continue
+                if tablero[i][columna]:
+                        if tablero[i][columna].tipo == "Rey" and tablero[i][columna].color != self.color and self.dimension == tablero[i][columna].dimension:
+                            print(f"Rey : {tablero[i][columna].tipo} {tablero[i][columna].color} {tablero[i][columna].dimension}")
+                        continue
                 break
             else:
                 break
@@ -350,8 +390,10 @@ class Reina(Pieza):
                 movimientos.append((i, columna))
             elif tablero[i][columna].color != self.color:
                 movimientos.append((i, columna))
-                # if tablero[i][columna].tipo == "Rey":
-                #     continue
+                if tablero[i][columna]:
+                        if tablero[i][columna].tipo == "Rey" and tablero[i][columna].color != self.color and self.dimension == tablero[i][columna].dimension:
+                            print(f"Rey : {tablero[i][columna].tipo} {tablero[i][columna].color} {tablero[i][columna].dimension}")
+                        continue
                 break
             else:
                 break
@@ -361,8 +403,10 @@ class Reina(Pieza):
                 movimientos.append((fila, i))
             elif tablero[fila][i].color != self.color:
                 movimientos.append((fila, i))
-                # if tablero[fila][i].tipo == "Rey":
-                #     continue
+                if tablero[i][columna]:
+                        if tablero[i][columna].tipo == "Rey" and tablero[i][columna].color != self.color and self.dimension == tablero[i][columna].dimension:
+                            print(f"Rey : {tablero[i][columna].tipo} {tablero[i][columna].color} {tablero[i][columna].dimension}")
+                        continue
                 break
             else:
                 break
@@ -372,8 +416,10 @@ class Reina(Pieza):
                 movimientos.append((fila, i))
             elif tablero[fila][i].color != self.color:
                 movimientos.append((fila, i))
-                # if tablero[fila][i].tipo == "Rey":
-                #     continue
+                if tablero[i][columna]:
+                        if tablero[i][columna].tipo == "Rey" and tablero[i][columna].color != self.color and self.dimension == tablero[i][columna].dimension:
+                            print(f"Rey : {tablero[i][columna].tipo} {tablero[i][columna].color} {tablero[i][columna].dimension}")
+                        continue
                 break
             else:
                 break
@@ -385,8 +431,10 @@ class Reina(Pieza):
                     movimientos.append((fila + i, columna + i))
                 elif tablero[fila + i][columna + i].color != self.color:
                     movimientos.append((fila + i, columna + i))
-                    # if tablero[fila + i][columna + i].tipo == "Rey":
-                    #     continue
+                    if tablero[i][columna]:
+                        if tablero[i][columna].tipo == "Rey" and tablero[i][columna].color != self.color and self.dimension == tablero[i][columna].dimension:
+                            print(f"Rey : {tablero[i][columna].tipo} {tablero[i][columna].color} {tablero[i][columna].dimension}")
+                        continue
                     break
                 else:
                     break
@@ -399,8 +447,10 @@ class Reina(Pieza):
                     movimientos.append((fila + i, columna - i))
                 elif tablero[fila + i][columna - i].color != self.color:
                     movimientos.append((fila + i, columna - i))
-                    # if tablero[fila + i][columna - i].tipo == "Rey":
-                    #     continue
+                    if tablero[i][columna]:
+                        if tablero[i][columna].tipo == "Rey" and tablero[i][columna].color != self.color and self.dimension == tablero[i][columna].dimension:
+                            print(f"Rey : {tablero[i][columna].tipo} {tablero[i][columna].color} {tablero[i][columna].dimension}")
+                        continue
                     break
                 else:
                     break
@@ -413,8 +463,10 @@ class Reina(Pieza):
                     movimientos.append((fila - i, columna + i))
                 elif tablero[fila - i][columna + i].color != self.color:
                     movimientos.append((fila - i, columna + i))
-                    # if tablero[fila - i][columna + i].tipo == "Rey":
-                    #     continue
+                    if tablero[i][columna]:
+                        if tablero[i][columna].tipo == "Rey" and tablero[i][columna].color != self.color and self.dimension == tablero[i][columna].dimension:
+                            print(f"Rey : {tablero[i][columna].tipo} {tablero[i][columna].color} {tablero[i][columna].dimension}")
+                        continue
                     break
                 else:
                     break
@@ -427,8 +479,10 @@ class Reina(Pieza):
                     movimientos.append((fila - i, columna - i))
                 elif tablero[fila - i][columna - i].color != self.color:
                     movimientos.append((fila - i, columna - i))
-                    # if tablero[fila - i][columna - i].tipo == "Rey":
-                    #     continue
+                    if tablero[i][columna]:
+                        if tablero[i][columna].tipo == "Rey" and tablero[i][columna].color != self.color and self.dimension == tablero[i][columna].dimension:
+                            print(f"Rey : {tablero[i][columna].tipo} {tablero[i][columna].color} {tablero[i][columna].dimension}")
+                        continue
                     break
                 else:
                     break
@@ -501,6 +555,8 @@ def mover(ficha, posicion, simular=False):
     
     if rey and rey.jaque(board.tablero, board.tablero2):
         print(f"Rey {rey.color} en jaque")
+        print(f"Camino {rey.camino_jaque}")
+        print(f"Camino rey {rey.direcciones()}")
         movimientos_legales = ficha.movimientos_legales(board.tablero, board.tablero2)
         movimientos_validos = []
         for mov in movimientos_legales:

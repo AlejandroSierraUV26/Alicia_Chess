@@ -21,7 +21,7 @@ ALTO = 800
 
 
 # Colores y posiciones
-CLOSE_BUTTON_COLOR = (200, 0, 0)
+CLOSE_BUTTON_COLOR = (200, 0, 0) 
 CLOSE_BUTTON_HOVER = (255, 0, 0)
 CLOSE_BUTTON_POS = (750, 10, 40, 40)  # x, y, ancho, alto
 FULLSCREEN_BUTTON_COLOR = (0, 200, 0)
@@ -40,7 +40,7 @@ pygame.display.set_caption("Ajedrez")
 CASILLA = 50
 
 # Colores para resaltar selección
-COLOR_SELECCION = (255, 0, 0)
+COLOR_SELECCION = (255, 0, 0) # Rojo
 
 # Cargar imágenes y escalarlas al tamaño de las casillas
 img_blanca = pygame.image.load(fr"src\img\cuadro\blanco.png")
@@ -182,7 +182,7 @@ def poner_ficha(ventana, row, col , inicio_x, inicio_y, img):
 
 # Calcular posiciones iniciales para centrar los tableros horizontalmente
 MARGEN_SUPERIOR = 50  # Distancia desde la parte superior de la ventana
-ESPACIO_ENTRE_TABLEROS = 100  # Espacio horizontal entre los dos tableros
+ESPACIO_ENTRE_TABLEROS = 140  # Espacio horizontal entre los dos tableros
 
 # Cálculo dinámico de las posiciones
 total_ancho_tableros = 2 * (8 * CASILLA) + ESPACIO_ENTRE_TABLEROS
