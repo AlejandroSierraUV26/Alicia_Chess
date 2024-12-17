@@ -95,4 +95,12 @@ class Tablero:
             return [item for sublist in self.tablero for item in sublist if item and item.color != color]
         else:
             return [item for sublist in self.tablero2 for item in sublist if item and item.color != color]
+        
+    def obtener_pieza_en(self, posicion):
+        fila, columna = posicion
+        if self.tablero[fila][columna] is not None:
+            return self.tablero[fila][columna]
+        if self.tablero2[fila][columna] is not None:
+            return self.tablero2[fila][columna]
+        return None
                 

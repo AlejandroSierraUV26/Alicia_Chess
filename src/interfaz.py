@@ -1,6 +1,8 @@
 import pygame
 from pygame.locals import *
 import piezas
+import random
+
 
 # Inicializar Pygame
 pygame.init()
@@ -230,12 +232,6 @@ def mostrar_casillas_disponibles(ficha):
             y = MARGEN_SUPERIOR + movimiento[0] * CASILLA
         pygame.draw.rect(VENTANA, (0, 255, 0), (x, y, CASILLA, CASILLA), 3)
         
-def mover_ficha(ficha, nueva_posicion):
-    """
-    Mueve una ficha a una nueva posición y actualiza la interfaz.
-    """
-
-    piezas.mover(ficha, nueva_posicion)
     
     
 def mostrar_cuadro_informacion(ventana):
@@ -308,6 +304,277 @@ def boton_invisible_clicado(pos):
         return True
     return False
 
+fichas_blancas = [ item for sublist in piezas.board.tablero for item in sublist if item and item.color == "Blanco"]
+fichas_blancas.extend(item for sublist in piezas.board.tablero2 for item in sublist if item and item.color == "Blanco")
+fichas_negras = [ item for sublist in piezas.board.tablero2 for item in sublist if item and item.color  == "Negro"]
+fichas_negras.extend(item for sublist in piezas.board.tablero for item in sublist if item and item.color == "Negro")
+tabla_costo_peon = [
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+    [0.3, 0.3, 0.35, 0.45, 0.45, 0.35, 0.3, 0.3],
+    [ 0.5, 0.5, 1, 2.5, 2.5, 1, 0.5, 0.5],
+    [0.15, 0.15, 0.15, 0.27, 0.27, 0.15, 0.15, 0.15],
+    [ 0.5, -0.5, -1, 0, 0, -1, -0.5, 0.5],
+    [0.05, 0.1, 0.1, -0.25, -0.25, 0.1, 0.1, 0.05],
+    [ 0, 0, 0, 0, 0, 0, 0, 0]
+]
+tabla_costo_caballo = [
+    [-0.5, -0.4, -0.3, -0.3, -0.3, -0.3, -0.4, -0.5],
+    [-0.4, -0.2,  0,    0,    0,    0,  -0.2, -0.4],
+    [-0.3,  0,    0.1,  0.15, 0.15, 0.1,  0,  -0.3],
+    [-0.3,  0.05, 0.15, 0.2,  0.2,  0.15, 0.05, -0.3],
+    [-0.3,  0,    0.15, 0.2,  0.2,  0.15, 0,  -0.3],
+    [-0.3,  0.05, 0.1,  0.15, 0.15, 0.1,  0.05, -0.3],
+    [-0.4, -0.2,  0,    0.05, 0.05, 0,   -0.2, -0.4],
+    [-0.5, -0.4, -0.2, -0.3, -0.3, -0.2, -0.4, -0.5]
+]
+tabla_costo_alfil = [
+    [-0.4, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.4],
+    [-0.2,  0.1,  0.1,  0.1,  0.1,  0.1,  0.1, -0.2],
+    [-0.2,  0.1,  0.2,  0.3,  0.3,  0.2,  0.1, -0.2],
+    [-0.2,  0.2,  0.2,  0.3,  0.3,  0.2,  0.2, -0.2],
+    [-0.2,  0.1,  0.3,  0.3,  0.3,  0.3,  0.1, -0.2],
+    [-0.2,  0.3,  0.3,  0.3,  0.3,  0.3,  0.3, -0.2],
+    [-0.2,  0.2,  0.1,  0.1,  0.1,  0.1,  0.2, -0.2],
+    [-0.4, -0.2, -0.6, -0.2, -0.2, -0.6, -0.2, -0.4]
+]
+
+tabla_costo_torre = [
+    [-0.5, -0.4, -0.3, -0.2, -0.2, -0.3, -0.4, -0.5],
+    [-0.4, -0.4, -0.25, 0, 0, -0.25, -0.4, -0.4],
+    [-0.3, -0.25, 0, 0.25, 0.25, 0, -0.25, -0.3],
+    [-0.2, 0, 0.25, 0.5, 0.5, 0.25, 0, -0.2],
+    [-0.2, 0, 0.25, 0.5, 0.5, 0.25, 0, -0.2],
+    [-0.3, -0.25, 0, 0.25, 0.25, 0, -0.25, -0.3],
+    [-0.4, -0.4, -0.25, 0, 0, -0.25, -0.4, -0.4],
+    [-0.5, -0.4, -0.3, 0, 0, -0.3, -0.4, -0.5]
+]
+
+tabla_costo_reina = [
+    [-0.8, -0.5, -0.5, -0.25, -0.25, -0.5, -0.5, -0.8],
+    [-0.5,  0,    0,    0,     0,     0,    0,   -0.5],
+    [-0.5,  0,    0.25, 0.5,   0.5,   0.25, 0,   -0.5],
+    [-0.25, 0,    0.25, 0.5,   0.5,   0.25, 0,   -0.25],
+    [ 0,    0,    0.25, 0.5,   0.5,   0.25, 0,   -0.25],
+    [-0.5,  0.25, 0.25, 0.5,   0.5,   0.25, 0,   -0.5],
+    [-0.5,  0,    0.25, 0,     0,     0,    0,   -0.5],
+    [-0.8, -0.5, -0.5, -0.25, -0.25, -0.5, -0.5, -0.8]
+]
+
+tabla_costo_rey = [
+    [0.3, -0.4, -0.4, -0.5, -0.5, -0.4, -0.4, -0.3],
+    [-0.3, -0.4, -0.4, -0.5, -0.5, -0.4, -0.4, -0.3],
+    [-0.3, -0.4, -0.4, -0.5, -0.5, -0.4, -0.4, -0.3],
+    [-0.3, -0.4, -0.4, -0.5, -0.5, -0.4, -0.4, -0.3],
+    [-0.2, -0.3, -0.3, -0.4, -0.4, -0.3, -0.3, -0.2],
+    [-0.1, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.1],
+    [ 0.2,  0.2,  0,    0,    0,    0,    0.2,  0.2],
+    [ 0.2,  0.3,  0.1,  0,    0,    0.1,  0.3,  0.2]
+]
+tabla_costos = [
+    tabla_costo_peon,
+    tabla_costo_caballo,
+    tabla_costo_alfil,
+    tabla_costo_torre,
+    tabla_costo_reina,
+    tabla_costo_rey
+]
+def lista_movimientos_posibles(ficha):
+    movimientos = ficha.movimientos_legales(piezas.board.tablero,piezas.board.tablero2)
+    elems = []
+    if movimientos:
+        for mov in movimientos:
+            elems.append([ficha.tipo, ficha.posicion, ficha.color, mov, ficha.dimension])
+            
+    return elems
+def seleccionar_ficha(posicion, fichas):
+    # Convertir la posición a fila y columna
+    fila, columna = int(posicion[0]), int(posicion[1])
+    
+    for ficha in fichas:
+        if ficha.posicion == (fila, columna):
+            return ficha
+    return None
+
+def mover_ficha(ficha, nueva_posicion):
+    # Reproducir sonido de movimiento
+    resultado = piezas.mover(ficha, nueva_posicion)
+    if isinstance(resultado, tuple):
+        mov, mensaje = resultado
+    else:
+        mov = resultado
+        mensaje = ""
+    if mov:
+        if ficha.tipo == "Caballo":
+            sonido_movimiento = pygame.mixer.Sound(fr"src\audio\caballo.mp3")
+        else:
+            sonido_movimiento = pygame.mixer.Sound(fr"src\audio\movimiento.mp3")
+        sonido_movimiento.play()
+        # Mostrar mensaje de movimiento
+        fuente = pygame.font.Font(None, 72)
+        texto_movimiento = fuente.render(f"Moviendo {ficha.tipo} a {nueva_posicion}", True, (255, 255, 255))
+        ventana_movimiento = pygame.Surface((texto_movimiento.get_width() + 20, texto_movimiento.get_height() + 20))
+        ventana_movimiento.fill((0, 0, 0))
+        ventana_movimiento.blit(texto_movimiento, (10, 10))
+        VENTANA.blit(ventana_movimiento, ((ANCHO - ventana_movimiento.get_width()) // 2, (ALTO - ventana_movimiento.get_height()) // 2))
+        pygame.display.flip()
+        pygame.time.wait(2000)  # Esperar 2 segundos
+    
+    return mov
+def determinar_profundidad():
+    total_fichas = len(fichas_blancas) + len(fichas_negras)
+    if total_fichas > 20:
+        return 2  # Menor profundidad para posiciones complejas
+    elif total_fichas > 10:
+        return 3
+    else:
+        return 4  # Mayor profundidad para el final del juego
+
+def evaluar_tablero():
+    valor = 0
+    for fila in piezas.board.tablero:
+        for pieza in fila:
+            if pieza:
+                base_valor = pieza.valor
+                if pieza.tipo == "Peon":
+                    control_centro = tabla_costo_peon[pieza.posicion[0]][pieza.posicion[1]]
+                elif pieza.tipo == "Caballo":
+                    control_centro = tabla_costo_caballo[pieza.posicion[0]][pieza.posicion[1]]
+                elif pieza.tipo == "Alfil":
+                    control_centro = tabla_costo_alfil[pieza.posicion[0]][pieza.posicion[1]]
+                elif pieza.tipo == "Torre":
+                    control_centro = tabla_costo_torre[pieza.posicion[0]][pieza.posicion[1]]
+                elif pieza.tipo == "Reina":
+                    control_centro = tabla_costo_reina[pieza.posicion[0]][pieza.posicion[1]]
+                elif pieza.tipo == "Rey":
+                    control_centro = tabla_costo_rey[pieza.posicion[0]][pieza.posicion[1]]
+                else:
+                    control_centro = 0
+
+                # Calcular movilidad
+                movilidad = len(pieza.movimientos_legales(piezas.board.tablero, piezas.board.tablero2))
+
+                # Valorar capturas (priorizar capturar piezas enemigas)
+                capturas = sum(
+                    enemigo.valor for mov in pieza.movimientos_legales(piezas.board.tablero, piezas.board.tablero2)
+                    if (enemigo := piezas.board.obtener_pieza_en(mov)) and enemigo.color != pieza.color
+                )
+
+                # Ajustar el valor dependiendo del color
+                if pieza.color == "Blanco":
+                    valor -= base_valor + control_centro + movilidad + capturas
+                else:
+                    valor += base_valor + control_centro + movilidad + capturas
+
+    return valor
+
+def minimax(tablero, profundidad, alfa, beta, maximizando):
+    if profundidad == 0:
+        return evaluar_tablero() + random.uniform(-0.5, 0.5)
+
+    if maximizando:
+        max_eval = -float('inf')
+        for ficha in fichas_blancas:
+            movimientos = ficha.movimientos_legales(tablero.tablero, tablero.tablero2)
+            movimientos = filtrar_movimientos_prometedores(ficha, movimientos)
+            for mov in movimientos:
+                tablero_copia = tablero.copia_tablero()
+                pieza_enemigo = tablero.tablero[mov[0]][mov[1]] if ficha.dimension == 1 else tablero.tablero2[mov[0]][mov[1]]
+                
+                piezas.mover(ficha, mov, simular=True)
+                eval = minimax(tablero_copia, profundidad - 1, alfa, beta, False)
+                if pieza_enemigo:  # Si hay una pieza enemiga en la posición de destino
+                    eval += pieza_enemigo.valor 
+                
+                max_eval = max(max_eval, eval)
+                alfa = max(alfa, eval)
+                if beta <= alfa:
+                    break
+        return max_eval
+    else:
+        min_eval = float('inf')
+        for ficha in fichas_negras:
+            movimientos = ficha.movimientos_legales(tablero.tablero, tablero.tablero2)
+            movimientos = filtrar_movimientos_prometedores(ficha, movimientos)
+            for mov in movimientos:
+                tablero_copia = tablero.copia_tablero()
+                piezas.mover(ficha, mov, simular=True)
+                eval = minimax(tablero_copia, profundidad - 1, alfa, beta, True)
+                min_eval = min(min_eval, eval)
+                beta = min(beta, eval)
+                if beta <= alfa:
+                    break
+        return min_eval
+def mejor_movimiento():
+    mejor_movimientos = []
+    mejor_valor = float('inf')
+    for ficha in fichas_negras:
+        movimientos = ficha.movimientos_legales(piezas.board.tablero, piezas.board.tablero2)
+        movimientos = filtrar_movimientos_prometedores(ficha, movimientos)
+        for mov in movimientos:
+            tablero_copia = piezas.board.copia_tablero()
+            pieza_enemiga = piezas.board.tablero[mov[0]][mov[1]] if ficha.dimension == 1 else piezas.board.tablero2[mov[0]][mov[1]]
+            piezas.mover(ficha, mov, simular=True)
+            profundidad = determinar_profundidad()
+            valor = minimax(tablero_copia, profundidad, -float('inf'), float('inf'), True)
+            if pieza_enemiga:  # Si hay una pieza enemiga en la posición de destino
+                valor -= pieza_enemiga.valor 
+            if valor < mejor_valor:
+                mejor_valor = valor
+                mejor_movimientos = [(ficha, mov)]
+            elif valor == mejor_valor:
+                mejor_movimientos.append((ficha, mov))
+    # Elegir aleatoriamente entre los mejores movimientos
+    return random.choice(mejor_movimientos) if mejor_movimientos else None
+
+TURNOS_SEMIALEATORIOS = 5
+turno_actual = 0
+def filtrar_movimientos_prometedores(ficha, movimientos, maximo=5):
+    """
+    Ordena los movimientos por prioridad y selecciona los más prometedores.
+    Por ejemplo, prioriza capturas o movimientos hacia el centro.
+    """
+    if ficha.tipo == "Peon":
+        tabla_costo = tabla_costo_peon
+    elif ficha.tipo == "Caballo":
+        tabla_costo = tabla_costo_caballo
+    elif ficha.tipo == "Alfil":
+        tabla_costo = tabla_costo_alfil
+    elif ficha.tipo == "Torre":
+        tabla_costo = tabla_costo_torre
+    elif ficha.tipo == "Reina":
+        tabla_costo = tabla_costo_reina
+    elif ficha.tipo == "Rey":
+        tabla_costo = tabla_costo_rey
+    else:
+        tabla_costo = [[0]*8 for _ in range(8)]  # Default to a neutral table if type is unknown
+
+    movimientos_ordenados = sorted(
+        movimientos, 
+        key=lambda mov: tabla_costo[mov[0]][mov[1]], 
+        reverse=True
+    )
+    return movimientos_ordenados[:maximo]  # Considera solo los 5 mejores movimientos
+
+def movimiento_semi_aleatorio():
+    """
+    Selecciona un movimiento aleatorio de las piezas negras basado en sus movimientos legales.
+    """
+    movimientos_posibles = []
+    for ficha in fichas_negras:
+        movimientos = ficha.movimientos_legales(piezas.board.tablero, piezas.board.tablero2)
+        for mov in movimientos:
+            movimientos_posibles.append((ficha, mov))
+    
+    # Si hay movimientos posibles, elegir uno aleatoriamente
+    if movimientos_posibles:
+        return random.choice(movimientos_posibles)
+    return None
+
+
+
+
+
 # Variables para mantener la selección actual y la ficha seleccionada
 seleccion_izquierda = None
 seleccion_derecha = None
@@ -317,7 +584,8 @@ ficha_seleccionada = None  # Nueva variable para rastrear la ficha seleccionada
 ejecutando = True
 pantalla_inicio = True
 pantalla_completa = False
-
+turno_blanco = True
+turno_actual = 0
 while not piezas.finalizar_juego() and ejecutando:
     for evento in pygame.event.get():
         if evento.type == pygame.QUIT:
@@ -344,101 +612,134 @@ while not piezas.finalizar_juego() and ejecutando:
         # Dibujar los dos tableros
         dibujar_tablero(VENTANA, inicio_x_tablero_izquierdo, MARGEN_SUPERIOR)  # Tablero izquierdo
         dibujar_tablero(VENTANA, inicio_x_tablero_derecho, MARGEN_SUPERIOR)  # Tablero derecho
-        # *Dibujar fichas en el tablero izquierdo
+
+        # Dibujar fichas en el tablero izquierdo
         for fichas in piezas.board.tablero:
             if fichas:
                 for ficha in fichas:
                     if ficha:
                         poner_ficha(VENTANA, ficha.posicion[0], ficha.posicion[1], inicio_x_tablero_izquierdo, MARGEN_SUPERIOR, ficha.img)
-            
-        # *Dibujar fichas en el tablero derecho
+
+        # Dibujar fichas en el tablero derecho
         for fichas in piezas.board.tablero2:
             if fichas:
                 for ficha in fichas:
                     if ficha:
                         poner_ficha(VENTANA, ficha.posicion[0], ficha.posicion[1], inicio_x_tablero_derecho, MARGEN_SUPERIOR, ficha.img)
-                
-        
-        # *Detectar selección
-        mouse_pos = pygame.mouse.get_pos()
-        mouse_click = pygame.mouse.get_pressed()
-        keys = pygame.key.get_pressed()
-        if mouse_click[0] or any(keys):  # Si se hace clic con el botón izquierdo o se presiona una tecla
-            # Que tenga un delay para que no se mueva tan rápido
-            pygame.time.wait(100)
-            
-        
-        if mouse_click[0] or any(keys):  # Si se hace clic con el botón izquierdo o se presiona una tecla
-            # Verificar selección en el tablero izquierdo
-            seleccion = detectar_seleccion(mouse_pos, inicio_x_tablero_izquierdo, MARGEN_SUPERIOR)
-            if seleccion:
-                if ficha_seleccionada and ficha_seleccionada.dimension == 1:
-                    mover_ficha(ficha_seleccionada, (seleccion[1], seleccion[0]))
-                    ficha_seleccionada = None
-                    seleccion_izquierda = None  # Restablecer selección izquierda
-                else:
-                    seleccion_izquierda = seleccion  # Guardar la selección
-                    ficha_seleccionada = None  # Resetear ficha seleccionada
-                    for fichas in piezas.board.tablero:
-                        if fichas:
+
+        if turno_blanco:
+            # Detectar selección
+            mouse_pos = pygame.mouse.get_pos()
+            mouse_click = pygame.mouse.get_pressed()
+            keys = pygame.key.get_pressed()
+            if mouse_click[0] or any(keys):  # Si se hace clic con el botón izquierdo o se presiona una tecla
+                # Que tenga un delay para que no se mueva tan rápido
+                pygame.time.wait(100)
+
+            if mouse_click[0] or any(keys):  # Si se hace clic con el botón izquierdo o se presiona una tecla
+                # Verificar selección en el tablero izquierdo
+                seleccion = detectar_seleccion(mouse_pos, inicio_x_tablero_izquierdo, MARGEN_SUPERIOR)
+                if seleccion:
+                    if ficha_seleccionada and ficha_seleccionada.dimension == 1:
+                        try:
+                            mover_ficha(ficha_seleccionada, (seleccion[1], seleccion[0]))
+                        except TypeError:
+                            pass
+                        ficha_seleccionada = None
+                        seleccion_izquierda = None  # Restablecer selección izquierda
+                        turno_blanco = False  # Cambiar turno a negro
+                    else:
+                        seleccion_izquierda = seleccion  # Guardar la selección
+                        ficha_seleccionada = None  # Resetear ficha seleccionada
+                        for fichas in piezas.board.tablero:
+                            if fichas:
+                                if fichas:
+                                    for ficha in fichas:
+                                        if ficha:
+                                            if ficha.dimension == 1 and ficha.posicion == (seleccion[1], seleccion[0]) and ficha.color == "Blanco":
+                                                ficha_seleccionada = ficha
+
+                # Verificar selección en el tablero derecho
+                seleccion = detectar_seleccion(mouse_pos, inicio_x_tablero_derecho, MARGEN_SUPERIOR)
+                if seleccion:
+                    if ficha_seleccionada and ficha_seleccionada.dimension == 2:
+                        try:
+                            mover_ficha(ficha_seleccionada, (seleccion[1], seleccion[0]))
+                        except TypeError:
+                            pass
+                        ficha_seleccionada = None
+                        seleccion_derecha = None  # Restablecer selección derecha
+                        turno_blanco = False  # Cambiar turno a negro
+                    else:
+                        seleccion_derecha = seleccion  # Guardar la selección
+                        ficha_seleccionada = None  # Resetear ficha seleccionada
+                        for fichas in piezas.board.tablero2:
                             if fichas:
                                 for ficha in fichas:
                                     if ficha:
-                                        if ficha.dimension == 1 and ficha.posicion == (seleccion[1], seleccion[0]):
-                                            ficha_seleccionada = ficha        
-    
-            # Verificar selección en el tablero derecho
-            seleccion = detectar_seleccion(mouse_pos, inicio_x_tablero_derecho, MARGEN_SUPERIOR)
-            if seleccion:
-                if ficha_seleccionada and ficha_seleccionada.dimension == 2:
-                    mover_ficha(ficha_seleccionada, (seleccion[1], seleccion[0]))
-                    ficha_seleccionada = None
-                    seleccion_derecha = None  # Restablecer selección derecha
+                                        if ficha.dimension == 2 and ficha.posicion == (seleccion[1], seleccion[0]) and ficha.color == "Blanco":
+                                            ficha_seleccionada = ficha
+                                            break
+            # Detectar movimiento de selección con teclado
+            seleccion_izquierda = detectar_seleccion_teclado(seleccion_izquierda, keys)
+            seleccion_derecha = detectar_seleccion_teclado(seleccion_derecha, keys)
+            # Dibujar siempre las selecciones actuales si existen
+            if seleccion_izquierda:
+                col, row = seleccion_izquierda
+                pygame.draw.rect(
+                    VENTANA, COLOR_SELECCION,
+                    (inicio_x_tablero_izquierdo + col * CASILLA, MARGEN_SUPERIOR + row * CASILLA, CASILLA, CASILLA),
+                    3
+                )
+
+            if seleccion_derecha:
+                col, row = seleccion_derecha
+                pygame.draw.rect(
+                    VENTANA, COLOR_SELECCION,
+                    (inicio_x_tablero_derecho + col * CASILLA, MARGEN_SUPERIOR + row * CASILLA, CASILLA, CASILLA),
+                    3
+                )
+
+            # Mostrar cuadro fijo para la información
+            mostrar_cuadro_informacion(VENTANA)
+
+            # Mostrar información de la ficha seleccionada (si existe)
+            if ficha_seleccionada:
+                mostrar_info_ficha(VENTANA, ficha_seleccionada)
+
+        else:
+            if not turno_blanco and turno_actual >= TURNOS_SEMIALEATORIOS:
+                # Mostrar mensaje de "Minimax pensando"
+                fuente = pygame.font.Font(None, 36)
+                texto_pensando = fuente.render("Minimax pensando...", True, (255, 255, 255))
+                ventana_pensando = pygame.Surface((texto_pensando.get_width() + 20, texto_pensando.get_height() + 20))
+                ventana_pensando.fill((0, 0, 0))
+                ventana_pensando.blit(texto_pensando, (10, 10))
+                VENTANA.blit(ventana_pensando, ((ANCHO - ventana_pensando.get_width()) // 2, (ALTO - ventana_pensando.get_height()) // 2))
+                pygame.display.flip()
+
+            # Movimiento de las piezas negras por la IA
+            while True:
+                if turno_actual < TURNOS_SEMIALEATORIOS:
+                    movimiento = movimiento_semi_aleatorio()
                 else:
-                    seleccion_derecha = seleccion  # Guardar la selección
-                    ficha_seleccionada = None  # Resetear ficha seleccionada
-                    for fichas in piezas.board.tablero2:
-                        if fichas:
-                            for ficha in fichas:
-                                if ficha:
-                                    if ficha.dimension == 2 and ficha.posicion == (seleccion[1], seleccion[0]):
-                                        ficha_seleccionada = ficha
-                                        break   
-        # Detectar movimiento de selección con teclado
-        seleccion_izquierda = detectar_seleccion_teclado(seleccion_izquierda, keys)
-        seleccion_derecha = detectar_seleccion_teclado(seleccion_derecha, keys)
-        # Dibujar siempre las selecciones actuales si existen
-        if seleccion_izquierda:
-            col, row = seleccion_izquierda
-            pygame.draw.rect(
-                VENTANA, COLOR_SELECCION, 
-                (inicio_x_tablero_izquierdo + col * CASILLA, MARGEN_SUPERIOR + row * CASILLA, CASILLA, CASILLA), 
-                3
-            )
+                    movimiento = mejor_movimiento()
+                if movimiento:
+                    ficha, nueva_posicion = movimiento
+                    if mover_ficha(ficha, nueva_posicion):
+                        turno_blanco = True  # Cambiar turno a blanco
+                        turno_actual += 1
+                        break
+                    
 
-        if seleccion_derecha:
-            col, row = seleccion_derecha
-            pygame.draw.rect(
-                VENTANA, COLOR_SELECCION, 
-                (inicio_x_tablero_derecho + col * CASILLA, MARGEN_SUPERIOR + row * CASILLA, CASILLA, CASILLA), 
-                3
-            )
+                
 
-        # Mostrar cuadro fijo para la información
-        mostrar_cuadro_informacion(VENTANA)
-
-        # Mostrar información de la ficha seleccionada (si existe)
-        if ficha_seleccionada:
-            mostrar_info_ficha(VENTANA, ficha_seleccionada)
-
-         # Dibujar botones
+        # Dibujar botones
         dibujar_boton(VENTANA, CLOSE_BUTTON_COLOR, CLOSE_BUTTON_POS, "Salir")
         dibujar_boton(VENTANA, FULLSCREEN_BUTTON_COLOR, FULLSCREEN_BUTTON_POS, "Pantalla Completa")
 
         # Actualizar la pantalla
         pygame.display.flip()
-
-
 
 else:
     pygame.mixer.music.load(fr"src\audio\background_music.mp3")
@@ -447,7 +748,7 @@ else:
     # Mostrar animación de fin de juego
     img_fin_juego = pygame.image.load(fr"src\img\cuadro\fin_juego.png")
     img_fin_juego = pygame.transform.scale(img_fin_juego, (ANCHO, ALTO))
-    animacion_fin_juego(VENTANA, img_fin_juego, duracion=5000)  
+    animacion_fin_juego(VENTANA, img_fin_juego, duracion=5000)
 
 
 pygame.quit()

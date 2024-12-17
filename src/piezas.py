@@ -349,7 +349,8 @@ class Rey(Pieza):
                 movimientos_enemigos = pieza.movimientos_legales(tablero_actual, tablero_opuesto)
                 
                 if self.posicion in movimientos_enemigos:
-                    self.camino_jaque = set(movimientos_enemigos).intersection(self.direcciones())
+                    camino = set(movimientos_enemigos).intersection(self.direcciones())
+                    self.camino_jaque = camino
                     return True
     def jaque_mate(self, tablero_actual, tablero_opuesto):
         return True
@@ -503,20 +504,19 @@ def inicializar_piezas():
     fichas.append(Caballo("Blanco", (0, 1), 1, 3))
     fichas.append(Alfil("Blanco", (0, 2), 1, 3))
     fichas.append(Reina("Blanco", (0, 3), 1, 9))
-    fichas.append(Rey("Blanco", (0, 4), 1, 100))
+    fichas.append(Rey("Blanco", (0, 4), 1, 1000000))
     fichas.append(Alfil("Blanco", (0, 5), 1, 3))
     fichas.append(Caballo("Blanco", (0, 6), 1, 3))
     fichas.append(Torre("Blanco", (0, 7), 1, 5))
     for _ in range(8):
         fichas.append(Peon("Blanco", (1, _), 1, 1))
-    
         
     # Crear piezas negras
     fichas.append(Torre("Negro", (7,0), 1, 5))   
     fichas.append(Caballo("Negro", (7,1), 1, 3))
     fichas.append(Alfil("Negro", (7,2), 1, 3))
     fichas.append(Reina("Negro", (7,3), 1, 9))
-    fichas.append(Rey("Negro", (7,4), 1, 100))
+    fichas.append(Rey("Negro", (7,4), 1, 1000000))
     fichas.append(Alfil("Negro", (7,5), 1, 3))
     fichas.append(Caballo("Negro", (7,6), 1, 3))
     fichas.append(Torre("Negro", (7,7), 1, 5))
@@ -550,15 +550,14 @@ def buscar_ficha_general(posicion, piezas):
 
 def mover(ficha, posicion, simular=False):
 
+    if (board.tablero[posicion[0]][posicion[1]] is not None and board.tablero[posicion[0]][posicion[1]].color == ficha.color) or (board.tablero2[posicion[0]][posicion[1]] is not None and board.tablero2[posicion[0]][posicion[1]].color == ficha.color):
+        return False
     rey = next((pieza for pieza in fichas if isinstance(pieza, Rey) and pieza.color == ficha.color), None)
     
     
     if rey and rey.jaque(board.tablero, board.tablero2):
-        print(f"Rey {rey.color} en jaque")
-        print(f"Camino {rey.camino_jaque}")
-        print(f"Camino rey {rey.direcciones()}")
         movimientos_legales = ficha.movimientos_legales(board.tablero, board.tablero2)
-        movimientos_validos = []
+        movimientos_validos = list(rey.camino_jaque)
         for mov in movimientos_legales:
             # Simular el movimiento
             posicion_original = ficha.posicion
@@ -575,8 +574,7 @@ def mover(ficha, posicion, simular=False):
             return False
 
     
-    if (board.tablero[posicion[0]][posicion[1]] is not None and board.tablero[posicion[0]][posicion[1]].color == ficha.color) or (board.tablero2[posicion[0]][posicion[1]] is not None and board.tablero2[posicion[0]][posicion[1]].color == ficha.color):
-        return False
+    
     if isinstance(ficha, Rey):
         enroque_movimientos = ficha.enroque(board.tablero, board.tablero2)
         if posicion in enroque_movimientos:
@@ -600,7 +598,7 @@ def mover(ficha, posicion, simular=False):
             if ficha_enemiga in fichas:
                 fichas.remove(ficha_enemiga)
         board.mover_ficha(ficha, posicion)
-        return True
+        return True, f"Movimiento : {ficha.tipo} {ficha.posicion} {ficha.color} a {posicion}"
     else:
         return False
     
