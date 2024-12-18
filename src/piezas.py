@@ -639,3 +639,9 @@ def obtener_ficha_jaque():
             if rey.posicion in movimientos_enemigos:
                 fichas_jaque.append(pieza)
     return fichas_jaque
+
+def rey_en_jaque(color):
+    rey = next((pieza for pieza in fichas if isinstance(pieza, Rey) and pieza.color == color), None)
+    if rey.jaque(board.tablero, board.tablero2):
+        return True
+    return False

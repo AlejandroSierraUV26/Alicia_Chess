@@ -2,7 +2,7 @@ import pygame
 from pygame.locals import *
 import piezas
 import random
-
+from concurrent.futures import ThreadPoolExecutor
 
 # Inicializar Pygame
 pygame.init()
@@ -409,6 +409,8 @@ def mover_ficha(ficha, nueva_posicion):
             sonido_movimiento = pygame.mixer.Sound(fr"src\audio\caballo.mp3")
         else:
             sonido_movimiento = pygame.mixer.Sound(fr"src\audio\movimiento.mp3")
+            
+                
         sonido_movimiento.play()
         # Mostrar mensaje de movimiento
         fuente = pygame.font.Font(None, 72)
@@ -429,7 +431,20 @@ def determinar_profundidad():
         return 3
     else:
         return 4  # Mayor profundidad para el final del juego
+def evaluar_movimiento(tablero, ficha, mov, profundidad, alfa, beta, maximizando):
+    """
+    Función auxiliar para evaluar un movimiento individual de forma paralela.
+    """
+    tablero_copia = tablero.copia_tablero()
+    pieza_enemigo = tablero.tablero[mov[0]][mov[1]] if ficha.dimension == 1 else tablero.tablero2[mov[0]][mov[1]]
 
+    piezas.mover(ficha, mov, simular=True)
+    eval = minimax(tablero_copia, profundidad - 1, alfa, beta, not maximizando)
+
+    if pieza_enemigo:  # Si hay una pieza enemiga en la posición de destino
+        eval += pieza_enemigo.valor
+
+    return eval
 def evaluar_tablero():
     valor = 0
     for fila in piezas.board.tablero:
@@ -474,18 +489,16 @@ def minimax(tablero, profundidad, alfa, beta, maximizando):
 
     if maximizando:
         max_eval = -float('inf')
-        for ficha in fichas_blancas:
-            movimientos = ficha.movimientos_legales(tablero.tablero, tablero.tablero2)
-            movimientos = filtrar_movimientos_prometedores(ficha, movimientos)
-            for mov in movimientos:
-                tablero_copia = tablero.copia_tablero()
-                pieza_enemigo = tablero.tablero[mov[0]][mov[1]] if ficha.dimension == 1 else tablero.tablero2[mov[0]][mov[1]]
-                
-                piezas.mover(ficha, mov, simular=True)
-                eval = minimax(tablero_copia, profundidad - 1, alfa, beta, False)
-                if pieza_enemigo:  # Si hay una pieza enemiga en la posición de destino
-                    eval += pieza_enemigo.valor 
-                
+        with ThreadPoolExecutor() as executor:
+            futures = []
+            for ficha in fichas_blancas:
+                movimientos = ficha.movimientos_legales(tablero.tablero, tablero.tablero2)
+                movimientos = filtrar_movimientos_prometedores(ficha, movimientos)
+                for mov in movimientos:
+                    futures.append(executor.submit(evaluar_movimiento, tablero, ficha, mov, profundidad, alfa, beta, maximizando))
+
+            for future in futures:
+                eval = future.result()
                 max_eval = max(max_eval, eval)
                 alfa = max(alfa, eval)
                 if beta <= alfa:
@@ -493,13 +506,16 @@ def minimax(tablero, profundidad, alfa, beta, maximizando):
         return max_eval
     else:
         min_eval = float('inf')
-        for ficha in fichas_negras:
-            movimientos = ficha.movimientos_legales(tablero.tablero, tablero.tablero2)
-            movimientos = filtrar_movimientos_prometedores(ficha, movimientos)
-            for mov in movimientos:
-                tablero_copia = tablero.copia_tablero()
-                piezas.mover(ficha, mov, simular=True)
-                eval = minimax(tablero_copia, profundidad - 1, alfa, beta, True)
+        with ThreadPoolExecutor() as executor:
+            futures = []
+            for ficha in fichas_negras:
+                movimientos = ficha.movimientos_legales(tablero.tablero, tablero.tablero2)
+                movimientos = filtrar_movimientos_prometedores(ficha, movimientos)
+                for mov in movimientos:
+                    futures.append(executor.submit(evaluar_movimiento, tablero, ficha, mov, profundidad, alfa, beta, maximizando))
+
+            for future in futures:
+                eval = future.result()
                 min_eval = min(min_eval, eval)
                 beta = min(beta, eval)
                 if beta <= alfa:
@@ -580,6 +596,7 @@ seleccion_izquierda = None
 seleccion_derecha = None
 ficha_seleccionada = None  # Nueva variable para rastrear la ficha seleccionada
 
+sonido_jaque = pygame.mixer.Sound(fr"src\audio\jaque.mp3")
 # Bucle principal
 ejecutando = True
 pantalla_inicio = True
@@ -587,6 +604,12 @@ pantalla_completa = False
 turno_blanco = True
 turno_actual = 0
 while not piezas.finalizar_juego() and ejecutando:
+    # Si el rey esta en jaque, reproducir sonido
+    if piezas.rey_en_jaque("Blanco") and turno_blanco:
+        sonido_jaque.play()
+    elif piezas.rey_en_jaque("Negro") and not turno_blanco:
+        sonido_jaque.play()
+    
     for evento in pygame.event.get():
         if evento.type == pygame.QUIT:
             ejecutando = False
