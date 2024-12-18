@@ -489,38 +489,29 @@ def minimax(tablero, profundidad, alfa, beta, maximizando):
 
     if maximizando:
         max_eval = -float('inf')
-        with ThreadPoolExecutor() as executor:
-            futures = []
-            for ficha in fichas_blancas:
-                movimientos = ficha.movimientos_legales(tablero.tablero, tablero.tablero2)
-                movimientos = filtrar_movimientos_prometedores(ficha, movimientos)
-                for mov in movimientos:
-                    futures.append(executor.submit(evaluar_movimiento, tablero, ficha, mov, profundidad, alfa, beta, maximizando))
-
-            for future in futures:
-                eval = future.result()
+        for ficha in fichas_blancas:
+            movimientos = ficha.movimientos_legales(tablero.tablero, tablero.tablero2)
+            movimientos = filtrar_movimientos_prometedores(ficha, movimientos)
+            for mov in movimientos:
+                eval = evaluar_movimiento(tablero, ficha, mov, profundidad - 1, alfa, beta, False)
                 max_eval = max(max_eval, eval)
                 alfa = max(alfa, eval)
                 if beta <= alfa:
-                    break
+                    return max_eval
         return max_eval
     else:
         min_eval = float('inf')
-        with ThreadPoolExecutor() as executor:
-            futures = []
-            for ficha in fichas_negras:
-                movimientos = ficha.movimientos_legales(tablero.tablero, tablero.tablero2)
-                movimientos = filtrar_movimientos_prometedores(ficha, movimientos)
-                for mov in movimientos:
-                    futures.append(executor.submit(evaluar_movimiento, tablero, ficha, mov, profundidad, alfa, beta, maximizando))
-
-            for future in futures:
-                eval = future.result()
+        for ficha in fichas_negras:
+            movimientos = ficha.movimientos_legales(tablero.tablero, tablero.tablero2)
+            movimientos = filtrar_movimientos_prometedores(ficha, movimientos)
+            for mov in movimientos:
+                eval = evaluar_movimiento(tablero, ficha, mov, profundidad - 1, alfa, beta, True)
                 min_eval = min(min_eval, eval)
                 beta = min(beta, eval)
                 if beta <= alfa:
-                    break
+                    return min_eval
         return min_eval
+
 def mejor_movimiento():
     mejor_movimientos = []
     mejor_valor = float('inf')
