@@ -2,7 +2,7 @@ import pygame
 from pygame.locals import *
 import piezas
 import random
-from concurrent.futures import ThreadPoolExecutor
+# from concurrent.futures import ThreadPoolExecutor
 
 # Inicializar Pygame
 pygame.init()
